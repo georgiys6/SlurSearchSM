@@ -1,0 +1,55 @@
+﻿Поиск по @test_user
+===================
+
+Откройте каждую ссылку в браузере, где вы вошли в X. Пустой результат — хорошо. Поиск X находит только точные словоформы и не всегда показывает очень старые записи, поэтому полную проверку даёт только архив.
+
+Оскорбительные названия групп (нац., ЛГБТ и др.)
+------------------------------------------------
+1. хач, хачи, чурка, чурки, чурок, жид, жиды, жидов
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D1%85%D0%B0%D1%87%20OR%20%D1%85%D0%B0%D1%87%D0%B8%20OR%20%D1%87%D1%83%D1%80%D0%BA%D0%B0%20OR%20%D1%87%D1%83%D1%80%D0%BA%D0%B8%20OR%20%D1%87%D1%83%D1%80%D0%BE%D0%BA%20OR%20%D0%B6%D0%B8%D0%B4%20OR%20%D0%B6%D0%B8%D0%B4%D1%8B%20OR%20%D0%B6%D0%B8%D0%B4%D0%BE%D0%B2%29
+2. хохол, хохлы, хохлов, кацап, кацапы, москали, пиндосы, черножопые
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D1%85%D0%BE%D1%85%D0%BE%D0%BB%20OR%20%D1%85%D0%BE%D1%85%D0%BB%D1%8B%20OR%20%D1%85%D0%BE%D1%85%D0%BB%D0%BE%D0%B2%20OR%20%D0%BA%D0%B0%D1%86%D0%B0%D0%BF%20OR%20%D0%BA%D0%B0%D1%86%D0%B0%D0%BF%D1%8B%20OR%20%D0%BC%D0%BE%D1%81%D0%BA%D0%B0%D0%BB%D0%B8%20OR%20%D0%BF%D0%B8%D0%BD%D0%B4%D0%BE%D1%81%D1%8B%20OR%20%D1%87%D0%B5%D1%80%D0%BD%D0%BE%D0%B6%D0%BE%D0%BF%D1%8B%D0%B5%29
+3. понаехавшие, рашисты, русня, ватники, укры, свинорусы, бандерлоги, колорады
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D0%BF%D0%BE%D0%BD%D0%B0%D0%B5%D1%85%D0%B0%D0%B2%D1%88%D0%B8%D0%B5%20OR%20%D1%80%D0%B0%D1%88%D0%B8%D1%81%D1%82%D1%8B%20OR%20%D1%80%D1%83%D1%81%D0%BD%D1%8F%20OR%20%D0%B2%D0%B0%D1%82%D0%BD%D0%B8%D0%BA%D0%B8%20OR%20%D1%83%D0%BA%D1%80%D1%8B%20OR%20%D1%81%D0%B2%D0%B8%D0%BD%D0%BE%D1%80%D1%83%D1%81%D1%8B%20OR%20%D0%B1%D0%B0%D0%BD%D0%B4%D0%B5%D1%80%D0%BB%D0%BE%D0%B3%D0%B8%20OR%20%D0%BA%D0%BE%D0%BB%D0%BE%D1%80%D0%B0%D0%B4%D1%8B%29
+4. орки, орков, чучмеки, пидор, пидоры, пидорас, пидр, педик
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D0%BE%D1%80%D0%BA%D0%B8%20OR%20%D0%BE%D1%80%D0%BA%D0%BE%D0%B2%20OR%20%D1%87%D1%83%D1%87%D0%BC%D0%B5%D0%BA%D0%B8%20OR%20%D0%BF%D0%B8%D0%B4%D0%BE%D1%80%20OR%20%D0%BF%D0%B8%D0%B4%D0%BE%D1%80%D1%8B%20OR%20%D0%BF%D0%B8%D0%B4%D0%BE%D1%80%D0%B0%D1%81%20OR%20%D0%BF%D0%B8%D0%B4%D1%80%20OR%20%D0%BF%D0%B5%D0%B4%D0%B8%D0%BA%29
+5. педики, гомик, ниггер, ниггеры, нигер, нигга, нигеры, негритос
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D0%BF%D0%B5%D0%B4%D0%B8%D0%BA%D0%B8%20OR%20%D0%B3%D0%BE%D0%BC%D0%B8%D0%BA%20OR%20%D0%BD%D0%B8%D0%B3%D0%B3%D0%B5%D1%80%20OR%20%D0%BD%D0%B8%D0%B3%D0%B3%D0%B5%D1%80%D1%8B%20OR%20%D0%BD%D0%B8%D0%B3%D0%B5%D1%80%20OR%20%D0%BD%D0%B8%D0%B3%D0%B3%D0%B0%20OR%20%D0%BD%D0%B8%D0%B3%D0%B5%D1%80%D1%8B%20OR%20%D0%BD%D0%B5%D0%B3%D1%80%D0%B8%D1%82%D0%BE%D1%81%29
+6. негритосы, черномазый, черномазые, китаезы, япошки, жидяра, армяшки, азеры
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D0%BD%D0%B5%D0%B3%D1%80%D0%B8%D1%82%D0%BE%D1%81%D1%8B%20OR%20%D1%87%D0%B5%D1%80%D0%BD%D0%BE%D0%BC%D0%B0%D0%B7%D1%8B%D0%B9%20OR%20%D1%87%D0%B5%D1%80%D0%BD%D0%BE%D0%BC%D0%B0%D0%B7%D1%8B%D0%B5%20OR%20%D0%BA%D0%B8%D1%82%D0%B0%D0%B5%D0%B7%D1%8B%20OR%20%D1%8F%D0%BF%D0%BE%D1%88%D0%BA%D0%B8%20OR%20%D0%B6%D0%B8%D0%B4%D1%8F%D1%80%D0%B0%20OR%20%D0%B0%D1%80%D0%BC%D1%8F%D1%88%D0%BA%D0%B8%20OR%20%D0%B0%D0%B7%D0%B5%D1%80%D1%8B%29
+7. бульбаши, чухонцы, пшеки, nigger, niggers, nigga, niggas, n1gger
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D0%B1%D1%83%D0%BB%D1%8C%D0%B1%D0%B0%D1%88%D0%B8%20OR%20%D1%87%D1%83%D1%85%D0%BE%D0%BD%D1%86%D1%8B%20OR%20%D0%BF%D1%88%D0%B5%D0%BA%D0%B8%20OR%20nigger%20OR%20niggers%20OR%20nigga%20OR%20niggas%20OR%20n1gger%29
+8. nibba, groid, darkie, coon, jigaboo, porch monkey, jungle bunny, kike
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28nibba%20OR%20groid%20OR%20darkie%20OR%20coon%20OR%20jigaboo%20OR%20%22porch%20monkey%22%20OR%20%22jungle%20bunny%22%20OR%20kike%29
+9. kikes, chink, ching chong, zipperhead, gook, spic, wetback, beaner
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28kikes%20OR%20chink%20OR%20%22ching%20chong%22%20OR%20zipperhead%20OR%20gook%20OR%20spic%20OR%20wetback%20OR%20beaner%29
+10. redskin, raghead, towelhead, paki, faggot, fag, dyke, tranny
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28redskin%20OR%20raghead%20OR%20towelhead%20OR%20paki%20OR%20faggot%20OR%20fag%20OR%20dyke%20OR%20tranny%29
+11. retard, retarded, khokhol, katsap, rashist, ruzzian, ruscist
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28retard%20OR%20retarded%20OR%20khokhol%20OR%20katsap%20OR%20rashist%20OR%20ruzzian%20OR%20ruscist%29
+
+Насилие, пожелания смерти, призывы к самоубийству
+-------------------------------------------------
+12. сдохни, сдохните, сдохнешь, сдохли, чтоб ты сдох, чтоб вы сдохли, подыхай, издохни
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D1%81%D0%B4%D0%BE%D1%85%D0%BD%D0%B8%20OR%20%D1%81%D0%B4%D0%BE%D1%85%D0%BD%D0%B8%D1%82%D0%B5%20OR%20%D1%81%D0%B4%D0%BE%D1%85%D0%BD%D0%B5%D1%88%D1%8C%20OR%20%D1%81%D0%B4%D0%BE%D1%85%D0%BB%D0%B8%20OR%20%22%D1%87%D1%82%D0%BE%D0%B1%20%D1%82%D1%8B%20%D1%81%D0%B4%D0%BE%D1%85%22%20OR%20%22%D1%87%D1%82%D0%BE%D0%B1%20%D0%B2%D1%8B%20%D1%81%D0%B4%D0%BE%D1%85%D0%BB%D0%B8%22%20OR%20%D0%BF%D0%BE%D0%B4%D1%8B%D1%85%D0%B0%D0%B9%20OR%20%D0%B8%D0%B7%D0%B4%D0%BE%D1%85%D0%BD%D0%B8%29
+13. убей себя, убейся, выпились, повесься, сгори, горите в аду, убить всех, убивать
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%22%D1%83%D0%B1%D0%B5%D0%B9%20%D1%81%D0%B5%D0%B1%D1%8F%22%20OR%20%D1%83%D0%B1%D0%B5%D0%B9%D1%81%D1%8F%20OR%20%D0%B2%D1%8B%D0%BF%D0%B8%D0%BB%D0%B8%D1%81%D1%8C%20OR%20%D0%BF%D0%BE%D0%B2%D0%B5%D1%81%D1%8C%D1%81%D1%8F%20OR%20%D1%81%D0%B3%D0%BE%D1%80%D0%B8%20OR%20%22%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%B5%20%D0%B2%20%D0%B0%D0%B4%D1%83%22%20OR%20%22%D1%83%D0%B1%D0%B8%D1%82%D1%8C%20%D0%B2%D1%81%D0%B5%D1%85%22%20OR%20%D1%83%D0%B1%D0%B8%D0%B2%D0%B0%D1%82%D1%8C%29
+14. расстрелять, повесить, уничтожить, перевешать, на фонарь, к стенке, смерть, сжечь
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D1%80%D0%B0%D1%81%D1%81%D1%82%D1%80%D0%B5%D0%BB%D1%8F%D1%82%D1%8C%20OR%20%D0%BF%D0%BE%D0%B2%D0%B5%D1%81%D0%B8%D1%82%D1%8C%20OR%20%D1%83%D0%BD%D0%B8%D1%87%D1%82%D0%BE%D0%B6%D0%B8%D1%82%D1%8C%20OR%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%B5%D1%88%D0%B0%D1%82%D1%8C%20OR%20%22%D0%BD%D0%B0%20%D1%84%D0%BE%D0%BD%D0%B0%D1%80%D1%8C%22%20OR%20%22%D0%BA%20%D1%81%D1%82%D0%B5%D0%BD%D0%BA%D0%B5%22%20OR%20%D1%81%D0%BC%D0%B5%D1%80%D1%82%D1%8C%20OR%20%D1%81%D0%B6%D0%B5%D1%87%D1%8C%29
+15. kill yourself, kys, kill them all, kill all, death to, hope you die, drop dead, go die
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%22kill%20yourself%22%20OR%20kys%20OR%20%22kill%20them%20all%22%20OR%20%22kill%20all%22%20OR%20%22death%20to%22%20OR%20%22hope%20you%20die%22%20OR%20%22drop%20dead%22%20OR%20%22go%20die%22%29
+16. neck yourself, rope yourself, should be shot, should be killed, should be hanged, exterminate, gas them, lynch
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%22neck%20yourself%22%20OR%20%22rope%20yourself%22%20OR%20%22should%20be%20shot%22%20OR%20%22should%20be%20killed%22%20OR%20%22should%20be%20hanged%22%20OR%20exterminate%20OR%20%22gas%20them%22%20OR%20lynch%29
+17. wipe them out
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%22wipe%20them%20out%22%29
+
+Расчеловечивание
+----------------
+18. недочеловеки, нелюди, выродки, биомусор, биомасса, скоты, животные, паразиты
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D0%BD%D0%B5%D0%B4%D0%BE%D1%87%D0%B5%D0%BB%D0%BE%D0%B2%D0%B5%D0%BA%D0%B8%20OR%20%D0%BD%D0%B5%D0%BB%D1%8E%D0%B4%D0%B8%20OR%20%D0%B2%D1%8B%D1%80%D0%BE%D0%B4%D0%BA%D0%B8%20OR%20%D0%B1%D0%B8%D0%BE%D0%BC%D1%83%D1%81%D0%BE%D1%80%20OR%20%D0%B1%D0%B8%D0%BE%D0%BC%D0%B0%D1%81%D1%81%D0%B0%20OR%20%D1%81%D0%BA%D0%BE%D1%82%D1%8B%20OR%20%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%BD%D1%8B%D0%B5%20OR%20%D0%BF%D0%B0%D1%80%D0%B0%D0%B7%D0%B8%D1%82%D1%8B%29
+19. крысы, тараканы, нечисть, твари, мрази, ублюдки, отбросы, дегенераты
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28%D0%BA%D1%80%D1%8B%D1%81%D1%8B%20OR%20%D1%82%D0%B0%D1%80%D0%B0%D0%BA%D0%B0%D0%BD%D1%8B%20OR%20%D0%BD%D0%B5%D1%87%D0%B8%D1%81%D1%82%D1%8C%20OR%20%D1%82%D0%B2%D0%B0%D1%80%D0%B8%20OR%20%D0%BC%D1%80%D0%B0%D0%B7%D0%B8%20OR%20%D1%83%D0%B1%D0%BB%D1%8E%D0%B4%D0%BA%D0%B8%20OR%20%D0%BE%D1%82%D0%B1%D1%80%D0%BE%D1%81%D1%8B%20OR%20%D0%B4%D0%B5%D0%B3%D0%B5%D0%BD%D0%B5%D1%80%D0%B0%D1%82%D1%8B%29
+20. subhuman, subhumans, untermensch, vermin, cockroaches, parasites, savages, scum
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28subhuman%20OR%20subhumans%20OR%20untermensch%20OR%20vermin%20OR%20cockroaches%20OR%20parasites%20OR%20savages%20OR%20scum%29
+21. mongrels, degenerates, infestation
+https://x.com/search?f=live&q=from%3Atest_user%20filter%3Areplies%20%28mongrels%20OR%20degenerates%20OR%20infestation%29

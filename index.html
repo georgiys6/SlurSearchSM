@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SlurSearchSM</title>
+  <meta name="description" content="Проверка своего аккаунта в X, Bluesky, Facebook, Instagram, ВКонтакте и Snapchat на записи, за которые банят по массовым жалобам. Всё работает в браузере, архив никуда не отправляется.">
+  <link rel="stylesheet" href="web/style.css">
+</head>
+<body>
+<main>
+  <header class="no-print">
+    <h1>SlurSearchSM</h1>
+    <p>Проверяет <b>свой</b> аккаунт в соцсети на записи, за которые модерация может забанить по массовым жалобам:
+      оскорбительные названия групп, пожелания смерти и призывы к самоубийству, призывы к насилию, расчеловечивание, пропаганда самоубийства и самоповреждения.</p>
+    <p class="muted">Всё считается в вашем браузере — архив и записи никуда не отправляются. Это поиск по словарю,
+      а не оценка модерации: каждую найденную запись смотрите в контексте.</p>
+  </header>
+
+  <section class="card no-print">
+    <label class="network">
+      <span>Соцсеть</span>
+      <select id="network">
+        <option value="x">X (Twitter)</option>
+        <option value="bluesky">Bluesky</option>
+        <option value="facebook">Facebook</option>
+        <option value="instagram">Instagram</option>
+        <option value="vk">ВКонтакте</option>
+        <option value="snapchat">Snapchat</option>
+      </select>
+    </label>
+  </section>
+
+  <section class="card no-print">
+    <h2>Словари</h2>
+    <p class="muted">Встроенный словарь (оскорбления групп, насилие, расчеловечивание) используется всегда.</p>
+    <label class="file-line">Дополнительный словарь (.json, можно несколько): <input type="file" id="rule-custom" accept=".json,application/json" multiple></label>
+  </section>
+
+  <section class="card no-print" data-net="x">
+    <h2>Быстро: ссылки на поиск X</h2>
+    <p class="muted">Без архива. Откройте ссылки в браузере, где вы вошли в X. Пустой результат — хорошо.
+      Поиск X находит только точные словоформы и не видит замаскированные слова.</p>
+    <form id="search-form" class="row">
+      <input type="text" id="search-user" placeholder="ваш ник" autocomplete="off" required>
+      <label class="check"><input type="checkbox" id="search-replies" checked> только ответы</label>
+      <button type="submit">Сделать ссылки</button>
+    </form>
+  </section>
+
+  <section class="card no-print" data-net="bluesky">
+    <h2>Быстро и полностью: посты по нику</h2>
+    <p class="muted">Без архива и без входа: все ваши посты, ответы и репосты загружаются через открытый API Bluesky
+      и проверяются здесь же. Учитываются параметры проверки ниже.</p>
+    <form id="bsky-form" class="row">
+      <input type="text" id="bsky-user" placeholder="name.bsky.social" autocomplete="off" required>
+      <button type="submit" id="bsky-btn">Загрузить и проверить</button>
+    </form>
+  </section>
+
+  <section class="card no-print">
+    <h2 id="archive-title">Полностью: архив аккаунта</h2>
+    <p class="muted"><span id="archive-help"></span>
+      Можно также передать CSV/JSON с колонками <code>id, text, created_at, username</code>.</p>
+
+    <div id="drop" class="drop" tabindex="0">
+      <div id="drop-label"></div>
+      <div class="row center">
+        <label class="button secondary">Выбрать файл<input type="file" id="pick-file" accept=".zip,.csv,.json,.html,.htm" hidden></label>
+        <label class="button secondary">Выбрать папку<input type="file" id="pick-dir" webkitdirectory hidden></label>
+      </div>
+    </div>
+
+    <form id="check-form">
+      <h3>Параметры проверки</h3>
+      <div class="grid">
+        <label class="check"><input type="checkbox" id="opt-replies"> только ответы и комментарии — по ним чаще всего ищут жалобщики</label>
+        <label class="check" data-net="x"><input type="checkbox" id="opt-likes"> проверять и лайкнутые твиты</label>
+        <label class="check"><input type="checkbox" id="opt-noretweets"> пропускать ретвиты и репосты</label>
+        <label>с даты <input type="date" id="opt-since"></label>
+        <label>по дату <input type="date" id="opt-until"></label>
+        <label>мин. балл <input type="number" id="opt-min" value="2" min="0" step="1"></label>
+        <label>только аккаунт <input type="text" id="opt-account" placeholder="необязательно" autocomplete="off"></label>
+        <label class="file-line">уже проверенные id (.txt) <input type="file" id="opt-ignore" accept=".txt,text/plain"></label>
+      </div>
+      <button type="submit" id="check-btn" disabled>Проверить</button>
+    </form>
+  </section>
+
+  <p id="status" class="status no-print" role="status" hidden></p>
+
+  <section id="output" hidden>
+    <div class="toolbar no-print" id="downloads"></div>
+    <article id="result" class="doc"></article>
+  </section>
+
+  <footer class="no-print muted">
+    Что делать с найденным: удалите записи (для массового удаления пригодится <code>ids.txt</code>).
+    Если бан уже случился — подавайте апелляцию через форму поддержки соцсети.
+  </footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="web/slur_search_sm.js"></script>
+<script src="web/networks.js"></script>
+<script src="web/app.js"></script>
+</body>
+</html>
