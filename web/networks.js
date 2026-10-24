@@ -274,12 +274,21 @@
     return { username, tweets };
   }
 
-  // ---------------------------------------------------------------- Telegram (экспорт Telegram Desktop в JSON)
+  // ---------------------------------------------------------------- Telegram (экспорт Telegram Desktop в JSON или HTML)
 
   // Чаты, у которых есть ссылки вида t.me/c/<id чата>/<id сообщения> (открываются у участников чата).
-  // Страницы экспорта в формате HTML: export_results.html (весь аккаунт), messages.html, messages2.html… (чат).
-  const TG_HTML = /(?:^|\/)(?:export_results|messages\d*)\.html$/i;
   const TG_LINKED = new Set(["private_supergroup", "public_supergroup", "private_channel", "public_channel"]);
+  // Страницы экспорта в формате HTML (формат по умолчанию): export_results.html — данные владельца,
+  // chats/chat_001/messages.html, messages2.html… — чаты; в экспорте одного чата — просто messages.html, messages2.html…
+  const TG_INDEX = "export_results.html";
+  const TG_PAGE = /(?:^|\/)((?:chats\/chat_\d+\/)?messages\d*\.html)$/;
+
+  function telegramPath(path) {
+    if (/(?:^|\/)result\.json$/i.test(path)) return "result.json";
+    if (path === TG_INDEX || path.endsWith(`/${TG_INDEX}`)) return TG_INDEX;
+    const m = TG_PAGE.exec(path);
+    return m ? m[1] : null;
+  }
 
   /** Текст сообщения: строка или список кусков (строки и { type: "bold", text }). */
   const tgText = (text) => (typeof text === "string" ? text : (text || []).map((p) => (typeof p === "string" ? p : p.text || "")).join(""));
@@ -290,7 +299,7 @@
    * чтобы свои можно было отобрать полем «только аккаунт».
    */
   async function loadTelegram(files) {
-    if (!files.has("result.json") && files.has("html")) throw new Error(t("tg.html"));
+    if (!files.has("result.json") && [...files.keys()].some((k) => TG_PAGE.test(k))) return loadTelegramHtml(files);
     const data = files.has("result.json") ? await readJson(files, "result.json") : null;
     if (!data || (!data.chats && !data.messages)) {
       throw new Error(t("tg.noResult"));
@@ -318,6 +327,81 @@
     }
     const warnings = me ? [] : [t("tg.noOwner")];
     return { username, tweets, warnings };
+  }
+
+  // Разбор HTML-экспорта: страницы формирует Telegram Desktop по одному шаблону, поэтому хватает регулярных выражений.
+  // Та же логика — в load_telegram_html (slur_search_sm.py).
+  const TG_MESSAGE = /<div class="message ([^"]*)" id="message(-?\d+)">/g;
+  const TG_DATE = /class="pull_right date details" title="(\d\d)\.(\d\d)\.(\d{4}) (\d\d:\d\d:\d\d)/;
+
+  /** Текст из разметки: <br> — перевод строки, остальные теги убираются. */
+  const tgHtmlText = (fragment) =>
+    SlurSearchSM.unescapeHtml(fragment.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "")).trim();
+
+  /** Имя и фамилия владельца (так подписаны его сообщения) и @ник — из блока personal_info в export_results.html. */
+  function tgHtmlOwner(index) {
+    const m = /class="personal_info([\s\S]*?)class="sections/.exec(index);
+    if (!m) return ["", ""];
+    const block = m[1];
+    const names = /class="rows names"([\s\S]*?)class="rows info"/.exec(block);
+    const values = (part) => [...part.matchAll(/<div class="value bold">([\s\S]*?)<\/div>/g)].map((v) => tgHtmlText(v[1]));
+    const fullName = (names ? values(names[1]) : []).filter(Boolean).join(" ");
+    const nick = values(block).find((v) => v.startsWith("@")) || "";
+    return [fullName, nick.replace(/^@+/, "")];
+  }
+
+  /**
+   * Сообщения из HTML-экспорта. Своё сообщение — то, у которого автор подписан именем владельца; у идущих подряд
+   * сообщений одного автора (класс joined) подписи нет — автор берётся из предыдущего. Ссылок нет: в HTML нет id чатов.
+   */
+  async function loadTelegramHtml(files) {
+    const index = files.has(TG_INDEX) ? SlurSearchSM.decode(await files.get(TG_INDEX)()) : "";
+    const [owner, nick] = tgHtmlOwner(index);
+    const chats = new Map(); // папка чата → [[номер страницы, ключ]]
+    for (const key of files.keys()) {
+      if (!TG_PAGE.test(key)) continue;
+      const cut = key.lastIndexOf("/");
+      const folder = cut < 0 ? "" : key.slice(0, cut);
+      if (!chats.has(folder)) chats.set(folder, []);
+      chats.get(folder).push([Number(key.slice(cut + 1).replace(/\D/g, "")) || 1, key]);
+    }
+    const tweets = [];
+    for (const folder of [...chats.keys()].sort()) {
+      const keys = chats.get(folder).sort((a, b) => a[0] - b[0]).map((p) => p[1]);
+      const prefix = folder.slice(folder.lastIndexOf("/") + 1) || "chat";
+      let chat = "";
+      let sender = "";
+      for (const [n, key] of keys.entries()) {
+        const page = SlurSearchSM.decode(await files.get(key)());
+        if (!n) {
+          const header = /<div class="page_header">[\s\S]*?<div class="text bold">([\s\S]*?)<\/div>/.exec(page);
+          chat = header ? tgHtmlText(header[1]) : "";
+        }
+        const starts = [...page.matchAll(TG_MESSAGE)];
+        starts.forEach((m, i) => {
+          if (m[1].split(" ").includes("service")) return;
+          const block = page.slice(m.index, i + 1 < starts.length ? starts[i + 1].index : page.length);
+          const fwd = block.indexOf('class="forwarded body"');
+          const head = fwd < 0 ? block : block.slice(0, fwd);
+          const author = /<div class="from_name">([\s\S]*?)<\/div>/.exec(head);
+          if (author) sender = tgHtmlText(author[1].replace(/<span class="details">[\s\S]*?<\/span>/g, ""));
+          const body = /<div class="text">([\s\S]*?)<\/div>/.exec(fwd < 0 ? block : block.slice(fwd));
+          const text = body ? tgHtmlText(body[1]) : "";
+          if (!text || (owner && sender !== owner)) return;
+          const d = TG_DATE.exec(block);
+          tweets.push({
+            id: `${prefix}_${m[2]}`,
+            text,
+            createdAt: d ? SlurSearchSM.parseTwitterDate(`${d[3]}-${d[2]}-${d[1]} ${d[4]}`) : null,
+            username: owner ? "" : sender,
+            kind: fwd >= 0 ? "repost" : head.includes('class="reply_to details"') ? "reply" : "message",
+            url: null,
+            chat,
+          });
+        });
+      }
+    }
+    return { username: nick || owner, tweets, warnings: owner ? [] : [t("tg.noOwner")] };
   }
 
   // ---------------------------------------------------------------- список
@@ -367,8 +451,7 @@
     },
     telegram: {
       label: "Telegram",
-      // HTML-экспорт (формат по умолчанию) берём только затем, чтобы подсказать, как переэкспортировать в JSON.
-      accept: (path) => (/(?:^|\/)result\.json$/i.test(path) ? "result.json" : TG_HTML.test(path) ? "html" : null),
+      accept: telegramPath,
       load: loadTelegram,
     },
   };
