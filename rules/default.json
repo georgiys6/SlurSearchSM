@@ -4,6 +4,7 @@
   "categories": {
     "slurs": {
       "title": "Оскорбительные названия групп (нац., ЛГБТ и др.)",
+      "titles": {"en": "Slurs against groups (ethnic, LGBT, etc.)", "ja": "集団への侮蔑語（民族・LGBTなど）"},
       "weight": 3,
       "patterns": [
         "хач(?!апур)", "чурк", "чурок", "чучмек", "жид(?!к|ен|ковск)", "хохл", "хохол(?!ок|ком)",
@@ -40,6 +41,7 @@
     },
     "violence": {
       "title": "Насилие, пожелания смерти, призывы к самоубийству",
+      "titles": {"en": "Violence, death wishes, telling people to kill themselves", "ja": "暴力・死を願う言葉・自殺の強要"},
       "weight": 3,
       "patterns": [
         "убива(?:ть|йте|ем)(?!\\w)", "убить(?!\\w)", "убейте", "уничтож(?:ить|ать|айте|им|ьте)(?!\\w)",
@@ -68,6 +70,7 @@
     },
     "self_harm": {
       "title": "Пропаганда самоубийства и самоповреждения (способы, призывы, «группы смерти», pro-ana)",
+      "titles": {"en": "Promotion of suicide and self-harm (methods, encouragement, “death groups”, pro-ana)", "ja": "自殺・自傷の助長（方法、勧誘、「死のグループ」、プロアナ）"},
       "weight": 3,
       "patterns": [
         "покончи(?:те)?\\s+с\\s+собой", "режь(?:те)?\\s+(?:себе\\s+)?вены", "вскрой(?:те)?\\s+(?:себе\\s+)?вены",
@@ -92,6 +95,7 @@
     },
     "self_harm_mention": {
       "title": "Упоминание самоубийства и самоповреждения",
+      "titles": {"en": "Mention of suicide and self-harm", "ja": "自殺・自傷への言及"},
       "weight": 1,
       "patterns": [
         "суицид", "самоубийств", "самоубийц", "покончи(?:л|ла|ли|ть)\\s+с\\s+собой", "повешусь", "выпилюсь", "выпилиться(?!\\w)",
@@ -103,6 +107,7 @@
     },
     "dehumanization": {
       "title": "Расчеловечивание",
+      "titles": {"en": "Dehumanization", "ja": "非人間化"},
       "weight": 2,
       "patterns": [
         "недочеловек", "унтерменш", "нелюд", "выродк", "выродок", "биомусор", "биомасс",
@@ -122,6 +127,7 @@
     },
     "groups": {
       "title": "Упоминание защищённой группы",
+      "titles": {"en": "Mention of a protected group", "ja": "保護対象の集団への言及"},
       "weight": 1,
       "patterns": [
         "русск", "россиян", "украин", "белорус", "еврей", "евреев", "иудей", "мусульман", "ислам",
@@ -137,6 +143,7 @@
     },
     "religion": {
       "title": "Оскорбление религии",
+      "titles": {"en": "Insulting religion", "ja": "宗教への侮辱"},
       "weight": 1,
       "patterns": [
         "попы(?!\\w)", "попов(?!\\w)", "мракобес", "боженьк", "сказочн\\w*\\s+(?:персонаж|друг|дед)", "кощунств",
@@ -146,13 +153,13 @@
   },
 
   "combos": [
-    { "if_all": ["groups", "violence"], "bonus": 4, "title": "Насилие + группа" },
-    { "if_all": ["groups", "dehumanization"], "bonus": 3, "title": "Расчеловечивание группы" },
-    { "if_all": ["slurs", "violence"], "bonus": 3, "title": "Насилие + оскорбление группы" },
-    { "if_all": ["slurs", "dehumanization"], "bonus": 2, "title": "Оскорбление + расчеловечивание" },
-    { "if_all": ["groups", "self_harm"], "bonus": 3, "title": "Призыв группы к самоубийству" },
-    { "if_all": ["slurs", "self_harm"], "bonus": 3, "title": "Оскорбление + призыв к самоубийству" },
-    { "if_all": ["violence", "self_harm_mention"], "bonus": 2, "title": "Пожелание смерти + тема самоубийства" }
+    { "if_all": ["groups", "violence"], "bonus": 4, "title": "Насилие + группа", "titles": {"en": "Violence + group", "ja": "暴力＋集団"} },
+    { "if_all": ["groups", "dehumanization"], "bonus": 3, "title": "Расчеловечивание группы", "titles": {"en": "Dehumanizing a group", "ja": "集団の非人間化"} },
+    { "if_all": ["slurs", "violence"], "bonus": 3, "title": "Насилие + оскорбление группы", "titles": {"en": "Violence + slur", "ja": "暴力＋侮蔑語"} },
+    { "if_all": ["slurs", "dehumanization"], "bonus": 2, "title": "Оскорбление + расчеловечивание", "titles": {"en": "Slur + dehumanization", "ja": "侮蔑語＋非人間化"} },
+    { "if_all": ["groups", "self_harm"], "bonus": 3, "title": "Призыв группы к самоубийству", "titles": {"en": "Urging a group to suicide", "ja": "集団への自殺の呼びかけ"} },
+    { "if_all": ["slurs", "self_harm"], "bonus": 3, "title": "Оскорбление + призыв к самоубийству", "titles": {"en": "Slur + urging suicide", "ja": "侮蔑語＋自殺の呼びかけ"} },
+    { "if_all": ["violence", "self_harm_mention"], "bonus": 2, "title": "Пожелание смерти + тема самоубийства", "titles": {"en": "Death wish + suicide topic", "ja": "死を願う言葉＋自殺の話題"} }
   ],
 
   "levels": { "high": 6, "medium": 3 }

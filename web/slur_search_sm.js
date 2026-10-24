@@ -71,7 +71,7 @@
     }
 
     const tweetFiles = [...files.keys()].filter((n) => /^data\/tweets?(-part\d+)?\.js$/.test(n)).sort();
-    if (!tweetFiles.length) throw new Error("В архиве не найден data/tweets.js — это точно архив X/Twitter?");
+    if (!tweetFiles.length) throw new Error(tr("err.noTweets"));
 
     const tweets = [];
     for (const name of tweetFiles) {
@@ -158,7 +158,7 @@
   function normalize(text) {
     let lowered = "";
     for (let c of text) {
-      if (c >= "！" && c <= "￯") {
+      if (c >= "\uff01" && c <= "\uffef") {
         const n = c.normalize("NFKC");
         if (n.length === 1) c = n;
       }
@@ -199,21 +199,21 @@
       const merged = new Map();
       for (const data of datas) {
         for (const [key, cat] of Object.entries(data.categories)) {
-          if (!merged.has(key)) merged.set(key, { title: cat.title, weight: cat.weight, patterns: [] });
+          if (!merged.has(key)) merged.set(key, { title: cat.title, titles: cat.titles, weight: cat.weight, patterns: [] });
           merged.get(key).patterns.push(...cat.patterns);
           if (cat.search_terms && cat.search_terms.length) this.searchTerms.set(key, [...(this.searchTerms.get(key) || []), ...cat.search_terms]);
         }
         this.combos.push(...(data.combos || []));
         Object.assign(this.levels, data.levels || {});
       }
-      for (const [key, { title, weight, patterns }] of merged) {
+      for (const [key, { title, titles, weight, patterns }] of merged) {
         const pattern = patterns.map((p) => `(?:${pyRegex(p)})`).join("|");
-        this.categories.set(key, { title, weight, regex: new RegExp(`${BOUNDARY}(?:${pattern})`, "gu") });
+        this.categories.set(key, { title, titles, weight, regex: new RegExp(`${BOUNDARY}(?:${pattern})`, "gu") });
       }
     }
 
     title(key) {
-      return this.categories.get(key).title;
+      return localized(this.categories.get(key));
     }
 
     check(tweet) {
@@ -230,7 +230,7 @@
       for (const combo of this.combos) {
         if (combo.if_all.every((k) => finding.categories.has(k))) {
           finding.score += combo.bonus;
-          finding.combos.push(combo.title);
+          finding.combos.push(localized(combo));
         }
       }
       if (finding.score >= this.levels.high) finding.level = "high";
@@ -241,18 +241,89 @@
 
   // ---------------------------------------------------------------- отчёты
 
-  const LEVEL_RU = { high: "высокий", medium: "средний", low: "низкий" };
-  const KIND_RU = {
-    tweet: "твит", reply: "ответ", retweet: "ретвит", like: "лайк",
-    post: "пост", comment: "комментарий", repost: "репост", message: "сообщение",
+  // Тексты отчётов — те же, что STRINGS в slur_search_sm.py (отчёты должны совпадать).
+  const STRINGS = {
+    ru: {
+      "report.title": "Отчёт по аккаунту @{user}",
+      "report.net": "Отчёт: {net}",
+      "report.netUser": "Отчёт: {net}, {user}",
+      "report.summary": "Проверено записей: {total}. Найдено: {found} (высокий риск — {high}, средний — {medium}, низкий — {low}). " +
+        "Найденные слова выделены (в TXT — квадратными скобками). Это поиск по словарю, а не оценка модерации: смотрите контекст.",
+      "report.risk": "Риск: {level} ({n})",
+      "report.noDate": "дата неизвестна",
+      "report.points": "{n} б.",
+      "report.combo": "сочетание: {combo}",
+      "level.high": "высокий", "level.medium": "средний", "level.low": "низкий",
+      "kind.tweet": "твит", "kind.reply": "ответ", "kind.retweet": "ретвит", "kind.like": "лайк",
+      "kind.post": "пост", "kind.comment": "комментарий", "kind.repost": "репост", "kind.message": "сообщение",
+      "csv.columns": "id|дата|тип|баллы|риск|категории|найдено|текст|ссылка",
+      "search.title": "Поиск по @{user}",
+      "search.note": "Откройте каждую ссылку в браузере, где вы вошли в X. Пустой результат — хорошо. Поиск X находит только " +
+        "точные словоформы и не всегда показывает очень старые записи, поэтому полную проверку даёт только архив.",
+      "warn.owner": "Внимание: архив принадлежит @{user}, а не @{wanted}.",
+      "err.noTweets": "В архиве не найден data/tweets.js — это точно архив X/Twitter?",
+    },
+    en: {
+      "report.title": "Report for @{user}",
+      "report.net": "Report: {net}",
+      "report.netUser": "Report: {net}, {user}",
+      "report.summary": "Posts checked: {total}. Found: {found} (high risk — {high}, medium — {medium}, low — {low}). " +
+        "Matched words are highlighted (in square brackets in TXT). This is a dictionary search, not a moderation verdict: check the context.",
+      "report.risk": "Risk: {level} ({n})",
+      "report.noDate": "date unknown",
+      "report.points": "{n} pts",
+      "report.combo": "combination: {combo}",
+      "level.high": "high", "level.medium": "medium", "level.low": "low",
+      "kind.tweet": "tweet", "kind.reply": "reply", "kind.retweet": "retweet", "kind.like": "like",
+      "kind.post": "post", "kind.comment": "comment", "kind.repost": "repost", "kind.message": "message",
+      "csv.columns": "id|date|type|score|risk|categories|matches|text|link",
+      "search.title": "Search for @{user}",
+      "search.note": "Open each link in a browser where you are logged in to X. An empty result is good. X search finds only " +
+        "exact word forms and does not always show very old posts, so only the archive gives a complete check.",
+      "warn.owner": "Warning: the archive belongs to @{user}, not @{wanted}.",
+      "err.noTweets": "data/tweets.js not found in the archive — is this really an X/Twitter archive?",
+    },
+    ja: {
+      "report.title": "@{user} のレポート",
+      "report.net": "レポート: {net}",
+      "report.netUser": "レポート: {net}、{user}",
+      "report.summary": "チェックした投稿: {total}件。検出: {found}件（高リスク {high}、中リスク {medium}、低リスク {low}）。" +
+        "該当語は強調表示されます（TXTでは [ ] で囲みます）。これは辞書による検索で、モデレーションの判定ではありません。必ず文脈を確認してください。",
+      "report.risk": "リスク: {level}（{n}件）",
+      "report.noDate": "日付不明",
+      "report.points": "{n}点",
+      "report.combo": "組み合わせ: {combo}",
+      "level.high": "高", "level.medium": "中", "level.low": "低",
+      "kind.tweet": "ツイート", "kind.reply": "返信", "kind.retweet": "リツイート", "kind.like": "いいね",
+      "kind.post": "投稿", "kind.comment": "コメント", "kind.repost": "リポスト", "kind.message": "メッセージ",
+      "csv.columns": "id|日時|種類|点数|リスク|カテゴリ|検出語|本文|リンク",
+      "search.title": "@{user} の検索",
+      "search.note": "Xにログインしているブラウザで各リンクを開いてください。結果が空なら問題ありません。Xの検索は完全一致の語形しか見つけず、" +
+        "古い投稿は表示されないこともあるため、完全なチェックにはアーカイブが必要です。",
+      "warn.owner": "注意: このアーカイブは @{wanted} ではなく @{user} のものです。",
+      "err.noTweets": "アーカイブに data/tweets.js がありません。X/Twitterのアーカイブで間違いありませんか？",
+    },
   };
+  let lang = "ru";
+  const setLang = (l) => { lang = STRINGS[l] ? l : "en"; };
+
+  /** Текст отчёта по ключу с подстановкой {имя}. */
+  function tr(key, params = {}) {
+    const text = STRINGS[lang][key] ?? STRINGS.ru[key];
+    return text.replace(/\{(\w+)\}/g, (m, name) => (name in params ? String(params[name]) : m));
+  }
+
+  /** Название из словаря на языке отчёта: titles[язык], иначе title. */
+  const localized = (obj) => (obj.titles && obj.titles[lang]) || obj.title;
+
+  const LEVELS = ["high", "medium", "low"];
   const REPLY_KINDS = new Set(["reply", "comment"]);
   const REPOST_KINDS = new Set(["retweet", "repost"]);
 
   // У записей из других соцсетей ссылка приходит готовой (url), а может и отсутствовать (url: null).
   const tweetUrl = (t) => (t.url !== undefined ? t.url : `https://x.com/${t.username || "i/web"}/status/${t.id}`);
   // У сообщений Telegram рядом с типом — название чата.
-  const kindLabel = (t) => (t.chat ? `${KIND_RU[t.kind]} · ${t.chat}` : KIND_RU[t.kind]);
+  const kindLabel = (t) => (t.chat ? `${tr(`kind.${t.kind}`)} · ${t.chat}` : tr(`kind.${t.kind}`));
 
   /** Текст, разбитый на куски: [кусок, найденное_слово]. */
   function splitMarked(text, spans) {
@@ -278,7 +349,7 @@
       this.title = title;
       this.items = [];
     }
-    heading(text) { this.items.push(["heading", text]); }
+    heading(text, level) { this.items.push(["heading", text, level]); } // level — для цвета на странице
     note(text) { this.items.push(["note", text]); }
     line(text, bold = false) { this.items.push(["line", text, bold]); }
     marked(parts) { this.items.push(["marked", parts]); }
@@ -299,21 +370,19 @@
   }
 
   function reportDoc(findings, rules, username, total, title) {
-    const counts = Object.fromEntries(Object.keys(LEVEL_RU).map((l) => [l, findings.filter((f) => f.level === l).length]));
-    const doc = new Doc(title || `Отчёт по аккаунту @${username || "—"}`);
-    doc.note(`Проверено записей: ${total}. Найдено: ${findings.length} (высокий риск — ${counts.high}, ` +
-      `средний — ${counts.medium}, низкий — ${counts.low}). Найденные слова выделены` +
-      " (в TXT — квадратными скобками). Это поиск по словарю, а не оценка модерации: смотрите контекст.");
-    for (const level of Object.keys(LEVEL_RU)) {
+    const counts = Object.fromEntries(LEVELS.map((l) => [l, findings.filter((f) => f.level === l).length]));
+    const doc = new Doc(title || tr("report.title", { user: username || "—" }));
+    doc.note(tr("report.summary", { total, found: findings.length, ...counts }));
+    for (const level of LEVELS) {
       const group = findings.filter((f) => f.level === level);
       if (!group.length) continue;
-      doc.heading(`Риск: ${LEVEL_RU[level]} (${group.length})`);
+      doc.heading(tr("report.risk", { level: tr(`level.${level}`), n: group.length }), level);
       group.forEach((fd, i) => {
         const t = fd.tweet;
         if (i) doc.separator();
-        doc.line(`${t.createdAt ? fmtDate(t.createdAt) : "дата неизвестна"} · ${kindLabel(t)} · ${fd.score} б.`, true);
+        doc.line(`${t.createdAt ? fmtDate(t.createdAt) : tr("report.noDate")} · ${kindLabel(t)} · ${tr("report.points", { n: fd.score })}`, true);
         doc.marked(splitMarked(t.text, fd.spans));
-        doc.note([...[...fd.categories.keys()].map((k) => rules.title(k)), ...fd.combos.map((c) => `сочетание: ${c}`)].join("; "));
+        doc.note([...[...fd.categories.keys()].map((k) => rules.title(k)), ...fd.combos.map((c) => tr("report.combo", { combo: c }))].join("; "));
         if (tweetUrl(t)) doc.link(tweetUrl(t), tweetUrl(t));
       });
     }
@@ -325,7 +394,7 @@
       v = String(v);
       return /[;"\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
     };
-    const rows = [["id", "дата", "тип", "баллы", "риск", "категории", "найдено", "текст", "ссылка"]];
+    const rows = [tr("csv.columns").split("|")];
     for (const fd of findings) {
       const t = fd.tweet;
       rows.push([
@@ -333,7 +402,7 @@
         t.createdAt ? fmtDate(t.createdAt) : "",
         kindLabel(t),
         fd.score,
-        LEVEL_RU[fd.level],
+        tr(`level.${fd.level}`),
         [...fd.categories.keys()].map((k) => rules.title(k)).join(", "),
         [...fd.categories.values()].flat().join(", "),
         t.text,
@@ -349,9 +418,8 @@
   /** Ссылки на поиск X по аккаунту — проверка без архива (открывать, войдя в X). */
   function searchDoc(rules, username, onlyReplies) {
     const base = `from:${username}` + (onlyReplies ? " filter:replies" : "");
-    const doc = new Doc(`Поиск по @${username}`);
-    doc.note("Откройте каждую ссылку в браузере, где вы вошли в X. Пустой результат — хорошо. Поиск X находит только " +
-      "точные словоформы и не всегда показывает очень старые записи, поэтому полную проверку даёт только архив.");
+    const doc = new Doc(tr("search.title", { user: username }));
+    doc.note(tr("search.note"));
     let total = 0;
     for (const [key, terms] of rules.searchTerms) {
       doc.heading(rules.title(key));
@@ -378,7 +446,7 @@
     if (opts.account) {
       const wanted = opts.account.replace(/^@+/, "").toLowerCase();
       if (username && username.toLowerCase() !== wanted && !tweets.some((t) => t.username && t.username.toLowerCase() === wanted)) {
-        warnings.push(`Внимание: архив принадлежит @${username}, а не @${wanted}.`);
+        warnings.push(tr("warn.owner", { user: username, wanted }));
       }
       tweets = tweets.filter((t) => !t.username || t.username.toLowerCase() === wanted);
       username = username || wanted;
@@ -398,7 +466,7 @@
     const ts = (f) => (f.tweet.createdAt ? f.tweet.createdAt.getTime() : 0);
     findings.sort((a, b) => b.score - a.score || ts(b) - ts(a));
 
-    const byLevel = Object.fromEntries(Object.keys(LEVEL_RU).map((l) => [l, findings.filter((f) => f.level === l).length]));
+    const byLevel = Object.fromEntries(LEVELS.map((l) => [l, findings.filter((f) => f.level === l).length]));
     return {
       username,
       total: tweets.length,
@@ -412,7 +480,7 @@
   }
 
   const SlurSearchSM = {
-    LEVEL_RU, KIND_RU, Rules, Doc, normalize, pyRegex, parseTwitterDate, splitMarked, decode, unescapeHtml,
+    LEVELS, Rules, tr, setLang, Doc, normalize, pyRegex, parseTwitterDate, splitMarked, decode, unescapeHtml,
     loadArchive, archiveFromZip, archiveFromFiles, loadTable, analyze, searchDoc, tweetUrl,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = SlurSearchSM;

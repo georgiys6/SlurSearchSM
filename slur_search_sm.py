@@ -34,8 +34,192 @@ HOMOGLYPHS = str.maketrans("aceopxykmthb", "асеорхукмтнв")
 CYRILLIC = re.compile(r"[а-яё]")
 WORD = re.compile(r"\w+")
 # Японские буквы (кана, иероглифы): пробелов между словами нет, поэтому после них левая граница слова не нужна.
-JAPANESE = r"々぀-ヿ㐀-䶿一-鿿豈-﫿"
+JAPANESE = r"\u3005\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
 BOUNDARY = rf"(?:(?<!\w)|(?<=[{JAPANESE}]))"
+
+
+# ---------------------------------------------------------------- языки
+
+# Тексты отчётов совпадают с STRINGS в web/slur_search_sm.js (отчёты скрипта и сайта должны быть одинаковыми),
+# cli.* и help.* — только для скрипта.
+STRINGS = {
+    "ru": {
+        "report.title": "Отчёт по аккаунту @{user}",
+        "report.net": "Отчёт: {net}",
+        "report.netUser": "Отчёт: {net}, {user}",
+        "report.summary": "Проверено записей: {total}. Найдено: {found} (высокий риск — {high}, средний — {medium}, низкий — {low}). "
+                          "Найденные слова выделены (в TXT — квадратными скобками). Это поиск по словарю, а не оценка модерации: смотрите контекст.",
+        "report.risk": "Риск: {level} ({n})",
+        "report.noDate": "дата неизвестна",
+        "report.points": "{n} б.",
+        "report.combo": "сочетание: {combo}",
+        "level.high": "высокий", "level.medium": "средний", "level.low": "низкий",
+        "kind.tweet": "твит", "kind.reply": "ответ", "kind.retweet": "ретвит", "kind.like": "лайк",
+        "kind.post": "пост", "kind.comment": "комментарий", "kind.repost": "репост", "kind.message": "сообщение",
+        "csv.columns": "id|дата|тип|баллы|риск|категории|найдено|текст|ссылка",
+        "search.title": "Поиск по @{user}",
+        "search.note": "Откройте каждую ссылку в браузере, где вы вошли в X. Пустой результат — хорошо. Поиск X находит только "
+                       "точные словоформы и не всегда показывает очень старые записи, поэтому полную проверку даёт только архив.",
+        "warn.owner": "Внимание: архив принадлежит @{user}, а не @{wanted}.",
+        "err.noTweets": "В архиве не найден data/tweets.js — это точно архив X/Twitter?",
+
+        "help.description": "Поиск рискованных записей в архиве X/Twitter или экспорте Telegram.",
+        "help.source": "папка/zip архива X, экспорт Telegram (result.json или его папка) или CSV/JSON с записями",
+        "help.account": "проверять только этот аккаунт (для CSV/JSON с несколькими авторами и экспорта одного чата Telegram)",
+        "help.name": "ИМЯ",
+        "help.searchLinks": "без архива: сделать ссылки на поиск X по своему аккаунту",
+        "help.rules": "файл словаря, можно несколько (по умолчанию rules/default.json и rules/ja.json)",
+        "help.onlyReplies": "проверять только ответы — по ним чаще всего ищут жалобщики",
+        "help.out": "папка для отчёта",
+        "help.format": "форматы отчёта через запятую: txt, pdf (по умолчанию оба)",
+        "help.minScore": "минимальный балл для попадания в отчёт",
+        "help.since": "с даты YYYY-MM-DD",
+        "help.until": "по дату YYYY-MM-DD",
+        "help.likes": "проверять и лайкнутые твиты (из архива)",
+        "help.noRetweets": "не проверять ретвиты и репосты",
+        "help.ignore": "файл с id записей, уже проверенных вручную (по одному на строку)",
+        "help.lang": "язык сообщений и отчёта: ru, en, ja (по умолчанию — язык системы)",
+        "cli.formatError": "--format: допустимы txt и pdf",
+        "cli.searchDone": "Ссылок на поиск: {n}. Откройте, войдя в X:",
+        "cli.needSource": "укажите архив/файл с записями или --search-links ИМЯ",
+        "cli.notFound": "Не найдено: {path}",
+        "cli.tgNoOwner": "Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. "
+                         'Чтобы проверить только свои, укажите --account "ваше имя в Telegram".',
+        "cli.summary": "Аккаунт: @{user}; проверено: {total}; найдено: {found} (высокий {high}, средний {medium}, низкий {low})",
+        "cli.report": "Отчёт:",
+        "cli.noFpdf": "PDF пропущен: установите библиотеку командой  pip install fpdf2",
+        "cli.noFont": "PDF пропущен: не найден шрифт с кириллицей (Arial или DejaVu Sans).",
+        "cli.noCjkFont": "PDF: не найден японский шрифт (Yu Gothic, MS Gothic, Noto Sans CJK, Hiragino) — японский текст в PDF не отобразится.",
+    },
+    "en": {
+        "report.title": "Report for @{user}",
+        "report.net": "Report: {net}",
+        "report.netUser": "Report: {net}, {user}",
+        "report.summary": "Posts checked: {total}. Found: {found} (high risk — {high}, medium — {medium}, low — {low}). "
+                          "Matched words are highlighted (in square brackets in TXT). This is a dictionary search, not a moderation verdict: check the context.",
+        "report.risk": "Risk: {level} ({n})",
+        "report.noDate": "date unknown",
+        "report.points": "{n} pts",
+        "report.combo": "combination: {combo}",
+        "level.high": "high", "level.medium": "medium", "level.low": "low",
+        "kind.tweet": "tweet", "kind.reply": "reply", "kind.retweet": "retweet", "kind.like": "like",
+        "kind.post": "post", "kind.comment": "comment", "kind.repost": "repost", "kind.message": "message",
+        "csv.columns": "id|date|type|score|risk|categories|matches|text|link",
+        "search.title": "Search for @{user}",
+        "search.note": "Open each link in a browser where you are logged in to X. An empty result is good. X search finds only "
+                       "exact word forms and does not always show very old posts, so only the archive gives a complete check.",
+        "warn.owner": "Warning: the archive belongs to @{user}, not @{wanted}.",
+        "err.noTweets": "data/tweets.js not found in the archive — is this really an X/Twitter archive?",
+
+        "help.description": "Find risky posts in an X/Twitter archive or a Telegram export.",
+        "help.source": "X archive folder/zip, Telegram export (result.json or its folder), or CSV/JSON with posts",
+        "help.account": "check only this account (for CSV/JSON with several authors and single-chat Telegram exports)",
+        "help.name": "NAME",
+        "help.searchLinks": "no archive: make X search links for your account",
+        "help.rules": "dictionary file, can be repeated (default: rules/default.json and rules/ja.json)",
+        "help.onlyReplies": "check replies only — mass reporters search these most often",
+        "help.out": "report folder",
+        "help.format": "report formats, comma-separated: txt, pdf (default: both)",
+        "help.minScore": "minimum score to include in the report",
+        "help.since": "from date YYYY-MM-DD",
+        "help.until": "to date YYYY-MM-DD",
+        "help.likes": "also check liked tweets (from the archive)",
+        "help.noRetweets": "skip retweets and reposts",
+        "help.ignore": "file with ids already reviewed manually (one per line)",
+        "help.lang": "message and report language: ru, en, ja (default: system language)",
+        "cli.formatError": "--format: allowed values are txt and pdf",
+        "cli.searchDone": "Search links: {n}. Open them while logged in to X:",
+        "cli.needSource": "specify an archive/file with posts or --search-links NAME",
+        "cli.notFound": "Not found: {path}",
+        "cli.tgNoOwner": "Warning: a single-chat export has no owner info, so messages from all participants are checked. "
+                         'To check only yours, add --account "your Telegram name".',
+        "cli.summary": "Account: @{user}; checked: {total}; found: {found} (high {high}, medium {medium}, low {low})",
+        "cli.report": "Report:",
+        "cli.noFpdf": "PDF skipped: install the library with  pip install fpdf2",
+        "cli.noFont": "PDF skipped: no font with Cyrillic found (Arial or DejaVu Sans).",
+        "cli.noCjkFont": "PDF: no Japanese font found (Yu Gothic, MS Gothic, Noto Sans CJK, Hiragino) — Japanese text will not show in the PDF.",
+    },
+    "ja": {
+        "report.title": "@{user} のレポート",
+        "report.net": "レポート: {net}",
+        "report.netUser": "レポート: {net}、{user}",
+        "report.summary": "チェックした投稿: {total}件。検出: {found}件（高リスク {high}、中リスク {medium}、低リスク {low}）。"
+                          "該当語は強調表示されます（TXTでは [ ] で囲みます）。これは辞書による検索で、モデレーションの判定ではありません。必ず文脈を確認してください。",
+        "report.risk": "リスク: {level}（{n}件）",
+        "report.noDate": "日付不明",
+        "report.points": "{n}点",
+        "report.combo": "組み合わせ: {combo}",
+        "level.high": "高", "level.medium": "中", "level.low": "低",
+        "kind.tweet": "ツイート", "kind.reply": "返信", "kind.retweet": "リツイート", "kind.like": "いいね",
+        "kind.post": "投稿", "kind.comment": "コメント", "kind.repost": "リポスト", "kind.message": "メッセージ",
+        "csv.columns": "id|日時|種類|点数|リスク|カテゴリ|検出語|本文|リンク",
+        "search.title": "@{user} の検索",
+        "search.note": "Xにログインしているブラウザで各リンクを開いてください。結果が空なら問題ありません。Xの検索は完全一致の語形しか見つけず、"
+                       "古い投稿は表示されないこともあるため、完全なチェックにはアーカイブが必要です。",
+        "warn.owner": "注意: このアーカイブは @{wanted} ではなく @{user} のものです。",
+        "err.noTweets": "アーカイブに data/tweets.js がありません。X/Twitterのアーカイブで間違いありませんか？",
+
+        "help.description": "X/Twitterのアーカイブ、またはTelegramのエクスポートから危険な投稿を探します。",
+        "help.source": "Xのアーカイブ（フォルダ/zip）、Telegramのエクスポート（result.jsonまたはそのフォルダ）、または投稿のCSV/JSON",
+        "help.account": "このアカウントのみチェック（複数の投稿者を含むCSV/JSONや、Telegramの1チャットのエクスポート用）",
+        "help.name": "名前",
+        "help.searchLinks": "アーカイブなし: 自分のアカウントのX検索リンクを作成",
+        "help.rules": "辞書ファイル、複数指定可（既定: rules/default.json と rules/ja.json）",
+        "help.onlyReplies": "返信のみチェック（通報者が最もよく探す対象）",
+        "help.out": "レポートの保存先フォルダ",
+        "help.format": "レポート形式（カンマ区切り）: txt, pdf（既定: 両方）",
+        "help.minScore": "レポートに含める最低点数",
+        "help.since": "開始日 YYYY-MM-DD",
+        "help.until": "終了日 YYYY-MM-DD",
+        "help.likes": "いいねしたツイートもチェック（アーカイブから）",
+        "help.noRetweets": "リツイート・リポストを除外",
+        "help.ignore": "手動で確認済みのIDのファイル（1行に1つ）",
+        "help.lang": "メッセージとレポートの言語: ru, en, ja（既定: システムの言語）",
+        "cli.formatError": "--format: 指定できるのは txt と pdf です",
+        "cli.searchDone": "検索リンク: {n}件。Xにログインした状態で開いてください:",
+        "cli.needSource": "投稿のアーカイブ/ファイル、または --search-links 名前 を指定してください",
+        "cli.notFound": "見つかりません: {path}",
+        "cli.tgNoOwner": "注意: 1つのチャットのエクスポートには所有者の情報がないため、全参加者のメッセージをチェックします。"
+                         '自分のメッセージだけにするには --account "Telegramの表示名" を指定してください。',
+        "cli.summary": "アカウント: @{user}。チェック: {total}件、検出: {found}件（高 {high}、中 {medium}、低 {low}）",
+        "cli.report": "レポート:",
+        "cli.noFpdf": "PDFを省略しました: pip install fpdf2 でライブラリをインストールしてください",
+        "cli.noFont": "PDFを省略しました: キリル文字を含むフォント（Arial または DejaVu Sans）が見つかりません。",
+        "cli.noCjkFont": "PDF: 日本語フォント（Yu Gothic、MS Gothic、Noto Sans CJK、ヒラギノ）が見つからないため、PDFに日本語が表示されません。",
+    },
+}
+LANG = "ru"  # main() ставит язык системы или --lang
+
+
+def system_lang() -> str:
+    """Язык системы: ru или ja, для остальных — en. В Windows — язык интерфейса, иначе — переменные LC_ALL/LANG и локаль."""
+    import locale
+
+    names = []
+    if sys.platform == "win32":
+        import ctypes
+
+        names.append(locale.windows_locale.get(ctypes.windll.kernel32.GetUserDefaultUILanguage(), ""))
+    names += [os.environ.get(v, "") for v in ("LC_ALL", "LC_MESSAGES", "LANG")]
+    names.append(locale.getlocale()[0] or "")
+    for name in names:
+        code = name.lower()[:2]  # ru_RU, ja_JP.UTF-8, Russian_Russia
+        if code in STRINGS:
+            return code
+        if code and code != "c.":
+            return "en"
+    return "en"
+
+
+def tr(key: str, **params) -> str:
+    """Текст по ключу на языке LANG с подстановкой {имя}."""
+    text = STRINGS[LANG].get(key) or STRINGS["ru"][key]
+    return text.format(**params) if params else text
+
+
+def localized(obj: dict) -> str:
+    """Название из словаря на языке отчёта: titles[язык], иначе title."""
+    return (obj.get("titles") or {}).get(LANG) or obj["title"]
 
 
 # ---------------------------------------------------------------- данные
@@ -104,7 +288,7 @@ def load_archive(path: Path, include_likes: bool) -> tuple[str, list[Tweet]]:
 
     tweet_files = sorted(n for n in names if re.fullmatch(r"data/tweets?(-part\d+)?\.js", n))
     if not tweet_files:
-        sys.exit(f"В архиве {path} не найден data/tweets.js — это точно архив X/Twitter?")
+        sys.exit(f"{path}: {tr('err.noTweets')}")
 
     tweets: list[Tweet] = []
     for name in tweet_files:
@@ -212,7 +396,7 @@ def unwiden(c: str) -> str:
 def normalize(text: str) -> str:
     """Нормализация без изменения длины строки — чтобы позиции совпадений подходили к исходному тексту.
     Полуширинные и полноширинные формы (ｼﾈ, ＫＹＳ) приводятся к обычным."""
-    width = "".join(unwiden(c) if "！" <= c <= "￯" else c for c in text)
+    width = "".join(unwiden(c) if "\uff01" <= c <= "\uffef" else c for c in text)
     lowered = "".join(c.lower() if len(c.lower()) == 1 else c for c in width).replace("ё", "е")
     return WORD.sub(lambda m: m.group().translate(HOMOGLYPHS) if CYRILLIC.search(m.group()) else m.group(), lowered)
 
@@ -224,21 +408,21 @@ class Rules:
         self.combos = []
         self.levels = {"high": 6, "medium": 3}
         # Категории с одним ключом из разных словарей объединяются (default.json + ja.json); название и вес — из первого.
-        merged: dict[str, tuple[str, int, list[str]]] = {}
+        merged: dict[str, tuple[dict, int, list[str]]] = {}
         for path in paths:
             data = json.loads(path.read_text(encoding="utf-8"))
             for key, cat in data["categories"].items():
-                merged.setdefault(key, (cat["title"], cat["weight"], []))[2].extend(cat["patterns"])
+                merged.setdefault(key, (cat, cat["weight"], []))[2].extend(cat["patterns"])
                 if cat.get("search_terms"):
                     self.search_terms.setdefault(key, []).extend(cat["search_terms"])
             self.combos += data.get("combos", [])
             self.levels.update(data.get("levels", {}))
-        for key, (title, weight, patterns) in merged.items():
+        for key, (cat, weight, patterns) in merged.items():
             pattern = "|".join(f"(?:{p})" for p in patterns)
-            self.categories[key] = (title, weight, re.compile(rf"{BOUNDARY}(?:{pattern})"))
+            self.categories[key] = (cat, weight, re.compile(rf"{BOUNDARY}(?:{pattern})"))
 
     def title(self, key: str) -> str:
-        return self.categories[key][0]
+        return localized(self.categories[key][0])
 
     def check(self, tweet: Tweet) -> Finding:
         norm = normalize(tweet.text)
@@ -253,7 +437,7 @@ class Rules:
         for combo in self.combos:
             if all(k in finding.categories for k in combo["if_all"]):
                 finding.score += combo["bonus"]
-                finding.combos.append(combo["title"])
+                finding.combos.append(localized(combo))
         if finding.score >= self.levels["high"]:
             finding.level = "high"
         elif finding.score >= self.levels["medium"]:
@@ -263,14 +447,24 @@ class Rules:
 
 # ---------------------------------------------------------------- отчёты
 
-LEVEL_RU = {"high": "высокий", "medium": "средний", "low": "низкий"}
-KIND_RU = {"tweet": "твит", "reply": "ответ", "retweet": "ретвит", "like": "лайк", "message": "сообщение", "repost": "репост"}
+LEVELS = ("high", "medium", "low")
 
 # Шрифты с кириллицей для PDF: (обычный, жирный).
 FONT_CANDIDATES = [
     (Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts" / "arial.ttf", Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts" / "arialbd.ttf"),
     (Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"), Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")),
     (Path("/System/Library/Fonts/Supplemental/Arial.ttf"), Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf")),
+]
+# Шрифты с японскими иероглифами и каной — запасные: из них берутся символы, которых нет в основном шрифте.
+CJK_FONT_CANDIDATES = [
+    Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts" / name for name in ("YuGothR.ttc", "meiryo.ttc", "msgothic.ttc")
+] + [
+    Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
+    Path("/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc"),
+    Path("/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc"),
+    Path("/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc"),
+    Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
+    Path("/Library/Fonts/Arial Unicode.ttf"),
 ]
 
 
@@ -279,7 +473,8 @@ def tweet_url(t: Tweet) -> str | None:
 
 
 def kind_label(t: Tweet) -> str:
-    return f"{KIND_RU[t.kind]} · {t.chat}" if t.chat else KIND_RU[t.kind]
+    kind = tr(f"kind.{t.kind}")
+    return f"{kind} · {t.chat}" if t.chat else kind
 
 
 def split_marked(text: str, spans: list[tuple[int, int]]) -> list[tuple[str, bool]]:
@@ -342,11 +537,11 @@ class Doc:
         try:
             from fpdf import FPDF
         except ImportError:
-            print("PDF пропущен: установите библиотеку командой  pip install fpdf2", file=sys.stderr)
+            print(tr("cli.noFpdf"), file=sys.stderr)
             return False
         fonts = next(((r, b) for r, b in FONT_CANDIDATES if r.exists()), None)
         if not fonts:
-            print("PDF пропущен: не найден шрифт с кириллицей (Arial или DejaVu Sans).", file=sys.stderr)
+            print(tr("cli.noFont"), file=sys.stderr)
             return False
 
         logging.getLogger("fpdf").setLevel(logging.ERROR)  # не шуметь про эмодзи, которых нет в шрифте
@@ -355,6 +550,13 @@ class Doc:
         pdf.set_auto_page_break(True, margin=15)
         pdf.add_font("main", "", str(fonts[0]))
         pdf.add_font("main", "B", str(fonts[1] if fonts[1].exists() else fonts[0]))
+        if re.search(f"[{JAPANESE}]", self.title + repr(self.items)):
+            cjk = next((p for p in CJK_FONT_CANDIDATES if p.exists()), None)
+            if cjk:
+                pdf.add_font("cjk", "", str(cjk))
+                pdf.set_fallback_fonts(["cjk"], exact_match=False)
+            else:
+                print(tr("cli.noCjkFont"), file=sys.stderr)
         pdf.add_page()
         pdf.set_font("main", "B", 16)
         pdf.multi_cell(0, 8, self.title, new_x="LMARGIN", new_y="NEXT")
@@ -405,24 +607,22 @@ def save_doc(doc: Doc, out_dir: Path, name: str, formats: set[str]) -> list[Path
 
 
 def report_doc(findings: list[Finding], rules: Rules, username: str, total: int, title: str | None = None) -> Doc:
-    counts = {lvl: sum(f.level == lvl for f in findings) for lvl in LEVEL_RU}
-    doc = Doc(title or f"Отчёт по аккаунту @{username or '—'}")
-    doc.note(f"Проверено записей: {total}. Найдено: {len(findings)} (высокий риск — {counts['high']}, "
-             f"средний — {counts['medium']}, низкий — {counts['low']}). Найденные слова выделены"
-             " (в TXT — квадратными скобками). Это поиск по словарю, а не оценка модерации: смотрите контекст.")
-    for level in LEVEL_RU:
+    counts = {lvl: sum(f.level == lvl for f in findings) for lvl in LEVELS}
+    doc = Doc(title or tr("report.title", user=username or "—"))
+    doc.note(tr("report.summary", total=total, found=len(findings), **counts))
+    for level in LEVELS:
         group = [f for f in findings if f.level == level]
         if not group:
             continue
-        doc.heading(f"Риск: {LEVEL_RU[level]} ({len(group)})")
+        doc.heading(tr("report.risk", level=tr(f"level.{level}"), n=len(group)))
         for i, fd in enumerate(group):
             t = fd.tweet
-            date = t.created_at.strftime("%Y-%m-%d %H:%M") if t.created_at else "дата неизвестна"
+            date = t.created_at.strftime("%Y-%m-%d %H:%M") if t.created_at else tr("report.noDate")
             if i:
                 doc.separator()
-            doc.line(f"{date} · {kind_label(t)} · {fd.score} б.", bold=True)
+            doc.line(f"{date} · {kind_label(t)} · {tr('report.points', n=fd.score)}", bold=True)
             doc.marked(split_marked(t.text, fd.spans))
-            doc.note("; ".join([rules.title(k) for k in fd.categories] + [f"сочетание: {c}" for c in fd.combos]))
+            doc.note("; ".join([rules.title(k) for k in fd.categories] + [tr("report.combo", combo=c) for c in fd.combos]))
             if url := tweet_url(t):
                 doc.link(url, url)
     return doc
@@ -431,7 +631,7 @@ def report_doc(findings: list[Finding], rules: Rules, username: str, total: int,
 def write_csv(path: Path, findings: list[Finding], rules: Rules) -> None:
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f, delimiter=";")
-        w.writerow(["id", "дата", "тип", "баллы", "риск", "категории", "найдено", "текст", "ссылка"])
+        w.writerow(tr("csv.columns").split("|"))
         for fd in findings:
             t = fd.tweet
             w.writerow([
@@ -439,7 +639,7 @@ def write_csv(path: Path, findings: list[Finding], rules: Rules) -> None:
                 t.created_at.strftime("%Y-%m-%d %H:%M") if t.created_at else "",
                 kind_label(t),
                 fd.score,
-                LEVEL_RU[fd.level],
+                tr(f"level.{fd.level}"),
                 ", ".join(rules.title(k) for k in fd.categories),
                 ", ".join(w for words in fd.categories.values() for w in words),
                 t.text,
@@ -450,9 +650,8 @@ def write_csv(path: Path, findings: list[Finding], rules: Rules) -> None:
 def search_doc(rules: Rules, username: str, only_replies: bool) -> tuple[Doc, int]:
     """Ссылки на поиск X по аккаунту — проверка без архива (открывать, войдя в X)."""
     base = f"from:{username}" + (" filter:replies" if only_replies else "")
-    doc = Doc(f"Поиск по @{username}")
-    doc.note("Откройте каждую ссылку в браузере, где вы вошли в X. Пустой результат — хорошо. Поиск X находит только "
-             "точные словоформы и не всегда показывает очень старые записи, поэтому полную проверку даёт только архив.")
+    doc = Doc(tr("search.title", user=username))
+    doc.note(tr("search.note"))
     total = 0
     for key, terms in rules.search_terms.items():
         doc.heading(rules.title(key))
@@ -468,50 +667,56 @@ def search_doc(rules: Rules, username: str, only_replies: bool) -> tuple[Doc, in
 # ---------------------------------------------------------------- CLI
 
 def main() -> None:
+    global LANG
     for stream in (sys.stdout, sys.stderr):
         stream.reconfigure(encoding="utf-8")
-    ap = argparse.ArgumentParser(description="Поиск рискованных твитов в аккаунте X/Twitter.")
-    ap.add_argument("source", type=Path, nargs="?", help="папка/zip архива X, экспорт Telegram (result.json или его папка) или CSV/JSON с твитами")
-    ap.add_argument("--account", help="проверять только этот аккаунт (для CSV/JSON с несколькими авторами)")
-    ap.add_argument("--search-links", metavar="ИМЯ", help="без архива: сделать ссылки на поиск X по своему аккаунту")
-    ap.add_argument("--rules", type=Path, action="append", help="файл словаря, можно несколько (по умолчанию rules/default.json и rules/ja.json)")
-    ap.add_argument("--only-replies", action="store_true", help="проверять только ответы — по ним чаще всего ищут жалобщики")
-    ap.add_argument("--out", type=Path, default=Path("report"), help="папка для отчёта")
-    ap.add_argument("--format", default="txt,pdf", help="форматы отчёта через запятую: txt, pdf (по умолчанию оба)")
-    ap.add_argument("--min-score", type=int, default=2, help="минимальный балл для попадания в отчёт")
-    ap.add_argument("--since", help="с даты YYYY-MM-DD")
-    ap.add_argument("--until", help="по дату YYYY-MM-DD")
-    ap.add_argument("--include-likes", action="store_true", help="проверять и лайкнутые твиты (из архива)")
-    ap.add_argument("--no-retweets", action="store_true", help="не проверять ретвиты")
-    ap.add_argument("--ignore", type=Path, help="файл с id твитов, уже проверенных вручную (по одному на строку)")
+    # Язык нужен до разбора аргументов — на нём выводится --help.
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--lang", choices=list(STRINGS))
+    LANG = pre.parse_known_args()[0].lang or system_lang()
+
+    ap = argparse.ArgumentParser(description=tr("help.description"))
+    ap.add_argument("source", type=Path, nargs="?", help=tr("help.source"))
+    ap.add_argument("--account", help=tr("help.account"))
+    ap.add_argument("--search-links", metavar=tr("help.name"), help=tr("help.searchLinks"))
+    ap.add_argument("--rules", type=Path, action="append", help=tr("help.rules"))
+    ap.add_argument("--only-replies", action="store_true", help=tr("help.onlyReplies"))
+    ap.add_argument("--out", type=Path, default=Path("report"), help=tr("help.out"))
+    ap.add_argument("--format", default="txt,pdf", help=tr("help.format"))
+    ap.add_argument("--min-score", type=int, default=2, help=tr("help.minScore"))
+    ap.add_argument("--since", help=tr("help.since"))
+    ap.add_argument("--until", help=tr("help.until"))
+    ap.add_argument("--include-likes", action="store_true", help=tr("help.likes"))
+    ap.add_argument("--no-retweets", action="store_true", help=tr("help.noRetweets"))
+    ap.add_argument("--ignore", type=Path, help=tr("help.ignore"))
+    ap.add_argument("--lang", choices=list(STRINGS), help=tr("help.lang"))
     args = ap.parse_args()
     rules = Rules(args.rules or DEFAULT_RULES)
     formats = {f.strip().lower() for f in args.format.split(",")}
     if not formats <= {"txt", "pdf"}:
-        ap.error("--format: допустимы txt и pdf")
+        ap.error(tr("cli.formatError"))
     args.out.mkdir(parents=True, exist_ok=True)
 
     if args.search_links:
         doc, count = search_doc(rules, args.search_links.lstrip("@"), args.only_replies)
         saved = save_doc(doc, args.out, "search", formats)
-        print(f"Ссылок на поиск: {count}. Откройте, войдя в X:")
+        print(tr("cli.searchDone", n=count))
         for p in saved:
             print(f"  {p.resolve()}")
         return
 
     if not args.source:
-        ap.error("укажите архив/файл с твитами или --search-links ИМЯ")
+        ap.error(tr("cli.needSource"))
     if not args.source.exists():
-        sys.exit(f"Не найдено: {args.source}")
+        sys.exit(tr("cli.notFound", path=args.source))
 
     title = None
     telegram = read_telegram(args.source)
     if telegram is not None:
         username, tweets, owner_known = load_telegram(telegram)
-        title = f"Отчёт: Telegram, {username}" if username else "Отчёт: Telegram"
+        title = tr("report.netUser" if username else "report.net", net="Telegram", user=username)
         if not owner_known and not args.account:
-            print("Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. "
-                  "Чтобы проверить только свои, укажите --account \"ваше имя в Telegram\".", file=sys.stderr)
+            print(tr("cli.tgNoOwner"), file=sys.stderr)
     elif args.source.is_dir() or args.source.suffix.lower() == ".zip":
         username, tweets = load_archive(args.source, args.include_likes)
     else:
@@ -521,7 +726,7 @@ def main() -> None:
     if args.account:
         wanted = args.account.lstrip("@").lower()
         if username and username.lower() != wanted and not any(t.username for t in tweets if t.username.lower() == wanted):
-            print(f"Внимание: архив принадлежит @{username}, а не @{wanted}.", file=sys.stderr)
+            print(tr("warn.owner", user=username, wanted=wanted), file=sys.stderr)
         tweets = [t for t in tweets if not t.username or t.username.lower() == wanted]
         username = username or wanted
 
@@ -548,10 +753,9 @@ def main() -> None:
     write_csv(args.out / "report.csv", findings, rules)
     (args.out / "ids.txt").write_text("\n".join(f.tweet.id for f in findings), encoding="utf-8")
 
-    by_level = {lvl: sum(f.level == lvl for f in findings) for lvl in LEVEL_RU}
-    print(f"Аккаунт: @{username or '—'}; проверено: {len(tweets)}; найдено: {len(findings)} "
-          f"(высокий {by_level['high']}, средний {by_level['medium']}, низкий {by_level['low']})")
-    print("Отчёт:")
+    by_level = {lvl: sum(f.level == lvl for f in findings) for lvl in LEVELS}
+    print(tr("cli.summary", user=username or "—", total=len(tweets), found=len(findings), **by_level))
+    print(tr("cli.report"))
     for p in saved:
         print(f"  {p.resolve()}")
 

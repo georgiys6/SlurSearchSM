@@ -79,6 +79,9 @@ h3 { margin: 16px 0 0; font-size: 15px; }
 [hidden] { display: none !important; }
 
 .network { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-weight: 600; font-size: 16px; }
+.title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 8px; }
+.title-row h1 { margin: 0; }
+.lang { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
 select {
   font: inherit;
   font-weight: 400;

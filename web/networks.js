@@ -5,6 +5,8 @@
   "use strict";
 
   const SlurSearchSM = root.SlurSearchSM || (typeof require !== "undefined" ? require("./slur_search_sm.js") : null);
+  const I18N = root.I18N || (typeof require !== "undefined" ? require("./i18n.js") : null);
+  const t = (key, params) => I18N.t(key, params);
 
   // ---------------------------------------------------------------- общее
 
@@ -75,12 +77,12 @@
       try {
         resp = await fetch(url);
       } catch (e) {
-        throw new Error("Bluesky не отвечает — проверьте интернет.");
+        throw new Error(t("bsky.offline"));
       }
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) {
         throw new Error(data.error === "InvalidRequest" || resp.status === 400
-          ? `Bluesky: аккаунт ${handle} не найден. Ник пишется полностью, например name.bsky.social.`
+          ? t("bsky.notFound", { handle })
           : `Bluesky: ${data.message || resp.status}`);
       }
       for (const item of data.feed || []) {
@@ -207,7 +209,7 @@
   }
 
   async function loadVk(files) {
-    if (typeof DOMParser === "undefined") throw new Error("Архив ВКонтакте читается только в браузере.");
+    if (typeof DOMParser === "undefined") throw new Error(t("vk.browserOnly"));
     const tweets = [];
     const makeId = idMaker("vk");
     for (const key of [...files.keys()].sort()) {
@@ -248,7 +250,7 @@
     if (account && account["Basic Information"]) username = account["Basic Information"].Username || "";
 
     const chat = files.has("chat_history.json") ? await readJson(files, "chat_history.json") : null;
-    if (!chat) throw new Error("Не найден json/chat_history.json — при запросе данных Snapchat выберите формат JSON.");
+    if (!chat) throw new Error(t("snap.noChat"));
 
     const tweets = [];
     const makeId = idMaker("snap");
@@ -288,7 +290,7 @@
   async function loadTelegram(files) {
     const data = files.has("result.json") ? await readJson(files, "result.json") : null;
     if (!data || (!data.chats && !data.messages)) {
-      throw new Error("Не найден result.json — при экспорте в Telegram Desktop выберите формат «Машиночитаемый JSON».");
+      throw new Error(t("tg.noResult"));
     }
     const info = data.personal_information || {};
     const me = info.user_id ? `user${info.user_id}` : null;
@@ -311,8 +313,7 @@
         });
       }
     }
-    const warnings = me ? [] : ["Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. " +
-      "Чтобы проверить только свои, впишите своё имя в Telegram в поле «только аккаунт»."];
+    const warnings = me ? [] : [t("tg.noOwner")];
     return { username, tweets, warnings };
   }
 
@@ -321,6 +322,7 @@
   /**
    * accept(path) — какие файлы архива нужны (ключ или null); load(files, opts) — разбор.
    * search — есть ли ссылки на поиск; api — загрузка по нику; likes — есть ли лайкнутые записи в архиве.
+   * Подсказка, откуда взять архив, — в i18n.js под ключом help.<соцсеть>.
    */
   const NETWORKS = {
     x: {
@@ -329,39 +331,28 @@
       likes: true,
       accept: undefined, // стандартный разбор архива X
       load: (files, opts) => SlurSearchSM.loadArchive(files, opts.includeLikes),
-      help: "X → Настройки → Ваш аккаунт → Скачать архив данных. Архив готовят 1–2 дня, потом приходит ссылка на <code>.zip</code>.",
     },
     bluesky: {
       label: "Bluesky",
       api: true,
-      help: "Архив Bluesky (<code>.car</code>) не нужен: посты загружаются по нику через открытый API Bluesky (блок выше). " +
-        "Сюда можно передать только CSV/JSON.",
     },
     facebook: {
       label: "Facebook",
       accept: jsonPath,
       load: loadFacebook,
-      help: "Настройки → Центр аккаунтов → Ваша информация и разрешения → Скачать информацию. Формат — <b>JSON</b>, " +
-        "качество медиа — низкое (архив будет меньше). Проверяются посты и комментарии. " +
-        "Если <code>.zip</code> очень большой, распакуйте его и выберите папку.",
     },
     instagram: {
       label: "Instagram",
       accept: jsonPath,
       load: loadInstagram,
-      help: "Настройки → Центр аккаунтов → Ваша информация и разрешения → Скачать информацию. Формат — <b>JSON</b>. " +
-        "Проверяются подписи к постам и комментарии. Если <code>.zip</code> очень большой, распакуйте его и выберите папку.",
     },
     vk: {
-      label: "ВКонтакте",
+      get label() { return t("net.vk"); },
       accept: (path) => {
         const m = /(?:^|\/)((?:wall|comments)\/[^/]+\.html?)$/i.exec(path);
         return m ? m[1].toLowerCase() : null;
       },
       load: loadVk,
-      help: "Настройки → Приватность и безопасность → Управление данными → Получить архив (vk.com/data_protection). " +
-        "Отметьте «Стена» и «Комментарии». Проверяются записи на стене и комментарии. " +
-        "Разбор архива ВКонтакте приблизительный — сверяйте найденное со ссылками.",
     },
     snapchat: {
       label: "Snapchat",
@@ -370,16 +361,11 @@
         return m ? `${m[1].toLowerCase()}.json` : null;
       },
       load: loadSnapchat,
-      help: "Settings → My Data (accounts.snapchat.com) → выберите «Chat History» и формат <b>JSON</b>. " +
-        "Проверяются ваши сообщения в чатах — снапы без текста Snapchat не сохраняет.",
     },
     telegram: {
       label: "Telegram",
       accept: (path) => (/(?:^|\/)result\.json$/i.test(path) ? "result.json" : null),
       load: loadTelegram,
-      help: "Telegram Desktop → Настройки → Продвинутые настройки → Экспорт данных из Telegram. Отметьте личные чаты и группы " +
-        "(в том числе публичные), формат — <b>«Машиночитаемый JSON»</b>, медиа не нужны. Выберите папку экспорта или файл " +
-        "<code>result.json</code>. Проверяются ваши сообщения; ссылки на сообщения есть только в супергруппах и каналах.",
     },
   };
 
