@@ -277,6 +277,8 @@
   // ---------------------------------------------------------------- Telegram (экспорт Telegram Desktop в JSON)
 
   // Чаты, у которых есть ссылки вида t.me/c/<id чата>/<id сообщения> (открываются у участников чата).
+  // Страницы экспорта в формате HTML: export_results.html (весь аккаунт), messages.html, messages2.html… (чат).
+  const TG_HTML = /(?:^|\/)(?:export_results|messages\d*)\.html$/i;
   const TG_LINKED = new Set(["private_supergroup", "public_supergroup", "private_channel", "public_channel"]);
 
   /** Текст сообщения: строка или список кусков (строки и { type: "bold", text }). */
@@ -288,6 +290,7 @@
    * чтобы свои можно было отобрать полем «только аккаунт».
    */
   async function loadTelegram(files) {
+    if (!files.has("result.json") && files.has("html")) throw new Error(t("tg.html"));
     const data = files.has("result.json") ? await readJson(files, "result.json") : null;
     if (!data || (!data.chats && !data.messages)) {
       throw new Error(t("tg.noResult"));
@@ -364,7 +367,8 @@
     },
     telegram: {
       label: "Telegram",
-      accept: (path) => (/(?:^|\/)result\.json$/i.test(path) ? "result.json" : null),
+      // HTML-экспорт (формат по умолчанию) берём только затем, чтобы подсказать, как переэкспортировать в JSON.
+      accept: (path) => (/(?:^|\/)result\.json$/i.test(path) ? "result.json" : TG_HTML.test(path) ? "html" : null),
       load: loadTelegram,
     },
   };

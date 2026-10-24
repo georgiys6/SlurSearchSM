@@ -83,12 +83,13 @@
       "help.snapchat": "Settings → My Data (accounts.snapchat.com) → выберите «Chat History» и формат <b>JSON</b>. " +
         "Проверяются ваши сообщения в чатах — снапы без текста Snapchat не сохраняет.",
       "help.telegram": "Telegram Desktop → Настройки → Продвинутые настройки → Экспорт данных из Telegram. Отметьте личные чаты и группы " +
-        "(в том числе публичные), формат — <b>«Машиночитаемый JSON»</b>, медиа не нужны. Выберите папку экспорта или файл " +
+        "(в том числе публичные), внизу окна в поле «Формат» выберите <b>«Машиночитаемый JSON»</b> (по умолчанию стоит HTML — его проверить нельзя), медиа не нужны. Выберите папку экспорта или файл " +
         "<code>result.json</code>. Проверяются ваши сообщения; ссылки на сообщения есть только в супергруппах и каналах.",
       "bsky.offline": "Bluesky не отвечает — проверьте интернет.",
       "bsky.notFound": "Bluesky: аккаунт {handle} не найден. Ник пишется полностью, например name.bsky.social.",
       "vk.browserOnly": "Архив ВКонтакте читается только в браузере.",
       "snap.noChat": "Не найден json/chat_history.json — при запросе данных Snapchat выберите формат JSON.",
+      "tg.html": "Это экспорт Telegram в формате HTML (export_results.html, messages.html) — его проверить нельзя. Повторите экспорт и внизу окна экспорта в поле «Формат» выберите «Машиночитаемый JSON» (или «Оба»): тогда появится result.json.",
       "tg.noResult": "Не найден result.json — при экспорте в Telegram Desktop выберите формат «Машиночитаемый JSON».",
       "tg.noOwner": "Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. " +
         "Чтобы проверить только свои, впишите своё имя в Telegram в поле «только аккаунт».",
@@ -171,12 +172,13 @@
       "help.snapchat": "Settings → My Data (accounts.snapchat.com) → select “Chat History” and the <b>JSON</b> format. " +
         "Your chat messages are checked — Snapchat does not keep snaps without text.",
       "help.telegram": "Telegram Desktop → Settings → Advanced → Export Telegram data. Select personal chats and groups " +
-        "(including public ones), format <b>“Machine-readable JSON”</b>, no media needed. Choose the export folder or the " +
+        "(including public ones), at the bottom of the window set “Format” to <b>“Machine-readable JSON”</b> (the default HTML cannot be checked), no media needed. Choose the export folder or the " +
         "<code>result.json</code> file. Your messages are checked; message links exist only in supergroups and channels.",
       "bsky.offline": "Bluesky is not responding — check your internet connection.",
       "bsky.notFound": "Bluesky: account {handle} not found. Use the full handle, e.g. name.bsky.social.",
       "vk.browserOnly": "The VK archive can only be read in a browser.",
       "snap.noChat": "json/chat_history.json not found — choose the JSON format when requesting your Snapchat data.",
+      "tg.html": "This is a Telegram export in HTML format (export_results.html, messages.html), which cannot be checked. Export again and at the bottom of the export window set “Format” to “Machine-readable JSON” (or “Both”) to get result.json.",
       "tg.noResult": "result.json not found — choose “Machine-readable JSON” when exporting from Telegram Desktop.",
       "tg.noOwner": "Warning: a single-chat export has no owner info, so messages from all participants are checked. " +
         "To check only yours, enter your Telegram name in the “only account” field.",
@@ -259,12 +261,13 @@
       "help.snapchat": "設定 → マイデータ（accounts.snapchat.com）→「Chat History」と<b>JSON</b>形式を選択。" +
         "チャットで送ったメッセージをチェックします（テキストのないスナップは保存されません）。",
       "help.telegram": "Telegram Desktop → 設定 → 詳細設定 → Telegramのデータをエクスポート。個人チャットとグループ（公開グループを含む）を選び、" +
-        "形式は<b>「JSON（機械可読）」</b>、メディアは不要です。エクスポートしたフォルダか <code>result.json</code> を選んでください。" +
+        "画面下部の「形式」で<b>「JSON（機械可読）」</b>を選び（既定のHTMLはチェックできません）、メディアは不要です。エクスポートしたフォルダか <code>result.json</code> を選んでください。" +
         "自分のメッセージをチェックします。メッセージへのリンクはスーパーグループとチャンネルのみです。",
       "bsky.offline": "Blueskyが応答しません。インターネット接続を確認してください。",
       "bsky.notFound": "Bluesky: アカウント {handle} が見つかりません。name.bsky.social のように完全なハンドル名を入力してください。",
       "vk.browserOnly": "VKのアーカイブはブラウザでのみ読み込めます。",
       "snap.noChat": "json/chat_history.json が見つかりません。Snapchatのデータ請求時にJSON形式を選んでください。",
+      "tg.html": "これはHTML形式のTelegramエクスポート（export_results.html、messages.html）のため、チェックできません。もう一度エクスポートし、エクスポート画面下部の「形式」で「JSON（機械可読）」（または「両方」）を選ぶと result.json が作成されます。",
       "tg.noResult": "result.json が見つかりません。Telegram Desktopのエクスポートで「JSON（機械可読）」を選んでください。",
       "tg.noOwner": "注意: 1つのチャットのエクスポートには所有者の情報がないため、全参加者のメッセージをチェックします。" +
         "自分のメッセージだけにするには「アカウントを限定」欄にTelegramの表示名を入力してください。",

@@ -83,6 +83,7 @@ STRINGS = {
         "cli.searchDone": "Ссылок на поиск: {n}. Откройте, войдя в X:",
         "cli.needSource": "укажите архив/файл с записями или --search-links ИМЯ",
         "cli.notFound": "Не найдено: {path}",
+        "cli.tgHtml": "Это экспорт Telegram в формате HTML (export_results.html, messages.html) — его проверить нельзя. Повторите экспорт и внизу окна экспорта в поле «Формат» выберите «Машиночитаемый JSON» (или «Оба»): тогда появится result.json.",
         "cli.tgNoOwner": "Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. "
                          'Чтобы проверить только свои, укажите --account "ваше имя в Telegram".',
         "cli.summary": "Аккаунт: @{user}; проверено: {total}; найдено: {found} (высокий {high}, средний {medium}, низкий {low})",
@@ -131,6 +132,7 @@ STRINGS = {
         "cli.searchDone": "Search links: {n}. Open them while logged in to X:",
         "cli.needSource": "specify an archive/file with posts or --search-links NAME",
         "cli.notFound": "Not found: {path}",
+        "cli.tgHtml": "This is a Telegram export in HTML format (export_results.html, messages.html), which cannot be checked. Export again and at the bottom of the export window set “Format” to “Machine-readable JSON” (or “Both”) to get result.json.",
         "cli.tgNoOwner": "Warning: a single-chat export has no owner info, so messages from all participants are checked. "
                          'To check only yours, add --account "your Telegram name".',
         "cli.summary": "Account: @{user}; checked: {total}; found: {found} (high {high}, medium {medium}, low {low})",
@@ -179,6 +181,7 @@ STRINGS = {
         "cli.searchDone": "検索リンク: {n}件。Xにログインした状態で開いてください:",
         "cli.needSource": "投稿のアーカイブ/ファイル、または --search-links 名前 を指定してください",
         "cli.notFound": "見つかりません: {path}",
+        "cli.tgHtml": "これはHTML形式のTelegramエクスポート（export_results.html、messages.html）のため、チェックできません。もう一度エクスポートし、エクスポート画面下部の「形式」で「JSON（機械可読）」（または「両方」）を選ぶと result.json が作成されます。",
         "cli.tgNoOwner": "注意: 1つのチャットのエクスポートには所有者の情報がないため、全参加者のメッセージをチェックします。"
                          '自分のメッセージだけにするには --account "Telegramの表示名" を指定してください。',
         "cli.summary": "アカウント: @{user}。チェック: {total}件、検出: {found}件（高 {high}、中 {medium}、低 {low}）",
@@ -331,18 +334,28 @@ def load_table(path: Path) -> list[Tweet]:
 
 
 # Чаты, у которых есть ссылки вида t.me/c/<id чата>/<id сообщения> (открываются у участников чата).
+# Страницы экспорта в формате HTML: export_results.html (весь аккаунт), messages.html, messages2.html… (чат).
+TG_HTML = re.compile(r"(?:export_results|messages\d*)\.html", re.IGNORECASE)
 TG_LINKED = {"private_supergroup", "public_supergroup", "private_channel", "public_channel"}
 
 
 def read_telegram(path: Path) -> dict | None:
-    """result.json экспорта Telegram Desktop: сам файл, папка экспорта или zip с ней. None — это не Telegram."""
+    """result.json экспорта Telegram Desktop: сам файл, папка экспорта или zip с ней. None — это не Telegram.
+    Экспорт в HTML (формат по умолчанию) не разбирается — выходим с подсказкой, как переэкспортировать в JSON."""
     if path.is_dir():
         found = next(path.rglob("result.json"), None)
+        if not found and any(TG_HTML.fullmatch(p.name) for p in path.rglob("*.html")):
+            sys.exit(tr("cli.tgHtml"))
         return json.loads(found.read_text(encoding="utf-8-sig")) if found else None
     if path.suffix.lower() == ".zip":
         with zipfile.ZipFile(path) as z:
-            name = next((n for n in z.namelist() if n.split("/")[-1] == "result.json"), None)
+            names = z.namelist()
+            name = next((n for n in names if n.split("/")[-1] == "result.json"), None)
+            if not name and any(TG_HTML.fullmatch(n.split("/")[-1]) for n in names):
+                sys.exit(tr("cli.tgHtml"))
             return json.loads(z.read(name).decode("utf-8-sig")) if name else None
+    if TG_HTML.fullmatch(path.name):
+        sys.exit(tr("cli.tgHtml"))
     if path.suffix.lower() != ".json":
         return None
     data = json.loads(path.read_text(encoding="utf-8-sig"))

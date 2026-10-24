@@ -76,7 +76,8 @@ python slur_search_sm.py путь\к\архиву --only-replies --include-likes
 Можно также передать CSV/JSON с колонками `id, text, created_at, username`.
 
 **Telegram.** Telegram Desktop → Настройки → Продвинутые настройки → Экспорт данных из Telegram. Отметьте личные чаты
-и группы (в том числе публичные), формат — «Машиночитаемый JSON», медиа не нужны. Передайте папку экспорта или `result.json`:
+и группы (в том числе публичные), внизу окна в поле «Формат» выберите «Машиночитаемый JSON» (по умолчанию стоит HTML —
+`export_results.html` и `messages.html` проверить нельзя), медиа не нужны. Передайте папку экспорта или `result.json`:
 
 ```
 python slur_search_sm.py "путь\к\Telegram Desktop\DataExport_2026-10-24"
