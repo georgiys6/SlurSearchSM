@@ -149,6 +149,54 @@
         "попы(?!\\w)", "попов(?!\\w)", "мракобес", "боженьк", "сказочн\\w*\\s+(?:персонаж|друг|дед)", "кощунств",
         "sky\\s*daddy", "imaginary\\s+friend", "pedo\\s+prophet", "religion\\s+of\\s+(?:peace|pedo)", "goat\\s*f[u*]cker"
       ]
+    },
+    "profanity": {
+      "title": "Грубые оскорбления и сексуальная лексика",
+      "titles": {"en": "Crude insults and sexual language", "ja": "下品な罵倒語・性的な言葉"},
+      "weight": 1,
+      "patterns": [
+        "(?:по|от|пере|за|вы|на)?трах(?:а|н)",
+        "ху[ея]с[ао]с", "хуепл[её]т", "хуил[аоу](?!\\w)", "хуеглот",
+        "п[иеё]зд(?:а|у|ой|е)(?!\\w)", "пиздабол", "пиздюк",
+        "долбо[её]б", "уеб(?:ок|ка|ку|ки|ков|ан|ищ)", "еблан", "ебанат", "ебанько", "ебыр",
+        "(?:вы|от|пере)[ъь]?еб(?:ать|ал|али|у|ем|ут)(?!\\w)", "еб(?:ать|ет|у|ут|ал|али)\\s+(?:тебя|вас|ее|его|их)(?!\\w)",
+        "бляд(?:и|ей|ям|ями|ина|ину|иной|ун|уны)(?!\\w)", "выблядок", "выблядк",
+        "сук(?:а|и|ой|е|у|ам|ами)(?!\\w)", "сукин", "сучар", "сучк(?:а|ой|у)(?!\\w)",
+        "муд(?:ак|ач|ил|о[зх]|ень)", "г[ао]нд[ао]н", "шлюх", "шалав", "залуп", "манд(?:а|у|ой|ы|ятин)(?!\\w)", "мандавошк",
+        "(?:по|на|от|за)?дроч", "задрот", "(?:от)?сос(?:и|ни)(?:те)?(?!\\w)", "отсос", "засранц", "засранец", "засранк",
+        "(?:mother|mutha)f(?:[u*@#v]+c+|\\*+)k(?:er|ers|a|as|in|ing)", "f(?:[u*@#v]+c+|\\*+|c)k+(?:er|ers|face|head|tard|wit)(?!\\w)", "fuk(?:er|ers)(?!\\w)",
+        "f(?:[u*@#v]+c+|\\*+|c)k+\\s+(?:you|u|off|yourself|urself|her|him|them)(?!\\w)", "stfu",
+        "sh[i1!]t(?:head|face|bag|stain)", "piece\\s+of\\s+sh[i1!]t", "dipshit", "b[i1!]tch", "biatch", "c[u*]nt", "twat",
+        "dick(?:s|head|hole|wad|face)?(?!\\w)", "cock(?:s|sucker|head)?(?!\\w)", "pussy", "pussies", "prick(?:s)?(?!\\w)",
+        "a[s$]{2}(?:hole|hat|wipe|clown|face)(?:s)?(?!\\w)", "(?:dumb|jack|lame|fat|smart)a[s$]{2}(?:es)?(?!\\w)", "arsehole", "bastard",
+        "wh[o0]re", "slut", "skank", "wank", "tosser", "jerk\\s*off", "douche", "jizz",
+        "cum(?:shot|slut|dump|bucket)", "piss\\s+off", "screw\\s+(?:you|u|off)", "suck\\s+my"
+      ],
+      "search_terms": [
+        "трахать", "трахнуть", "трахну", "хуесос", "пизда", "пиздабол", "уебок", "долбоеб", "еблан", "выебать",
+        "бляди", "выблядок", "сука", "суки", "мудак", "гандон", "шлюха", "шалава", "залупа", "дрочить", "соси", "отсоси",
+        "fuck you", "motherfucker", "fucker", "bitch", "cunt", "twat", "dick", "dickhead", "cock", "cocksucker",
+        "pussy", "asshole", "bastard", "whore", "slut", "wanker", "stfu", "suck my"
+      ]
+    },
+    "sexual_violence": {
+      "title": "Угрозы и пожелания изнасилования, сексуального насилия",
+      "titles": {"en": "Rape threats and wishes, sexual violence", "ja": "強姦の脅迫・性暴力を願う言葉"},
+      "weight": 3,
+      "patterns": [
+        "(?:из)?насил(?:ую|уем|уешь|уйте|уй)(?!\\w)", "изнасиловать", "изнасилуют",
+        "чтоб\\w*\\s+(?:тебя|вас|ее|его|их)\\s+(?:из)?насилова", "(?:тебя|вас|ее|его|их)\\s+(?:бы\\s+)?(?:из)?насиловать",
+        "(?:вы|от|пере)[ъь]?еб(?:у|ем)(?!\\w)", "(?:от|вы)?трах(?:аю|ну|нем)\\s+(?:тебя|вас|ее|его|их|твою)(?!\\w)",
+        "(?:вы|от)?трах(?:аю|ну|нем)(?=\\s*(?:сука|шлюх|шалав|бляд))", "отымею", "отымеем", "отымеют",
+        "пуст(?:ить|им|ят|ите|ят)\\s+(?:\\w+\\s+)?по\\s+кругу", "по\\s+кругу\\s+пуст",
+        "(?:i'?ll|i\\s+will|gonna|wanna|going\\s+to|we'?ll)\\s+rape", "rape\\s+(?:you|u|her|them|your)(?!\\w)",
+        "get(?:s)?\\s+raped", "(?:deserve(?:s)?\\s+to|should|ought\\s+to)\\s+be\\s+raped", "corrective\\s+rape",
+        "gang\\s*rape\\s+(?:you|u|her|them)"
+      ],
+      "search_terms": [
+        "изнасилую", "изнасилуем", "изнасиловать", "выебу", "отъебу", "отымею", "пустим по кругу",
+        "i will rape", "i'll rape", "rape you", "rape her", "get raped", "deserve to be raped", "corrective rape"
+      ]
     }
   },
 
@@ -159,7 +207,9 @@
     { "if_all": ["slurs", "dehumanization"], "bonus": 2, "title": "Оскорбление + расчеловечивание", "titles": {"en": "Slur + dehumanization", "ja": "侮蔑語＋非人間化"} },
     { "if_all": ["groups", "self_harm"], "bonus": 3, "title": "Призыв группы к самоубийству", "titles": {"en": "Urging a group to suicide", "ja": "集団への自殺の呼びかけ"} },
     { "if_all": ["slurs", "self_harm"], "bonus": 3, "title": "Оскорбление + призыв к самоубийству", "titles": {"en": "Slur + urging suicide", "ja": "侮蔑語＋自殺の呼びかけ"} },
-    { "if_all": ["violence", "self_harm_mention"], "bonus": 2, "title": "Пожелание смерти + тема самоубийства", "titles": {"en": "Death wish + suicide topic", "ja": "死を願う言葉＋自殺の話題"} }
+    { "if_all": ["violence", "self_harm_mention"], "bonus": 2, "title": "Пожелание смерти + тема самоубийства", "titles": {"en": "Death wish + suicide topic", "ja": "死を願う言葉＋自殺の話題"} },
+    { "if_all": ["groups", "profanity"], "bonus": 1, "title": "Грубое оскорбление группы", "titles": {"en": "Crude insult at a group", "ja": "集団への下品な罵倒"} },
+    { "if_all": ["groups", "sexual_violence"], "bonus": 3, "title": "Сексуальное насилие + группа", "titles": {"en": "Sexual violence + group", "ja": "性暴力＋集団"} }
   ],
 
   "levels": { "high": 6, "medium": 3 }

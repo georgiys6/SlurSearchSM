@@ -14,7 +14,7 @@
       "lang.label": "Язык",
       "network.label": "Соцсеть",
       "rules.title": "Словари",
-      "rules.builtin": "Встроенные словари — русский/английский и японский (оскорбления групп, насилие, расчеловечивание) — используются всегда.",
+      "rules.builtin": "Встроенные словари — русский/английский и японский (оскорбления групп, насилие, расчеловечивание, мат) — используются всегда.",
       "rules.custom": "Дополнительный словарь (.json, можно несколько):",
       "search.title": "Быстро: ссылки на поиск X",
       "search.help": "Без архива. Откройте ссылки в браузере, где вы вошли в X. Пустой результат — хорошо. " +
@@ -101,7 +101,7 @@
       "lang.label": "Language",
       "network.label": "Network",
       "rules.title": "Dictionaries",
-      "rules.builtin": "The built-in dictionaries — Russian/English and Japanese (slurs, violence, dehumanization) — are always used.",
+      "rules.builtin": "The built-in dictionaries — Russian/English and Japanese (slurs, violence, dehumanization, profanity) — are always used.",
       "rules.custom": "Additional dictionary (.json, several allowed):",
       "search.title": "Quick: X search links",
       "search.help": "No archive needed. Open the links in a browser where you are logged in to X. An empty result is good. " +
@@ -187,7 +187,7 @@
       "lang.label": "言語",
       "network.label": "SNS",
       "rules.title": "辞書",
-      "rules.builtin": "内蔵辞書（ロシア語・英語と日本語：侮蔑語、暴力、非人間化など）は常に使われます。",
+      "rules.builtin": "内蔵辞書（ロシア語・英語と日本語：侮蔑語、暴力、非人間化、卑語など）は常に使われます。",
       "rules.custom": "追加の辞書（.json、複数可）:",
       "search.title": "簡単: Xの検索リンク",
       "search.help": "アーカイブは不要です。Xにログインしているブラウザでリンクを開いてください。結果が空なら問題ありません。" +
