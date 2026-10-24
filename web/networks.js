@@ -272,6 +272,50 @@
     return { username, tweets };
   }
 
+  // ---------------------------------------------------------------- Telegram (экспорт Telegram Desktop в JSON)
+
+  // Чаты, у которых есть ссылки вида t.me/c/<id чата>/<id сообщения> (открываются у участников чата).
+  const TG_LINKED = new Set(["private_supergroup", "public_supergroup", "private_channel", "public_channel"]);
+
+  /** Текст сообщения: строка или список кусков (строки и { type: "bold", text }). */
+  const tgText = (text) => (typeof text === "string" ? text : (text || []).map((p) => (typeof p === "string" ? p : p.text || "")).join(""));
+
+  /**
+   * Свои сообщения из экспорта (полного или одного чата, включая группы, из которых вы вышли).
+   * В экспорте одного чата владелец неизвестен — тогда берутся все сообщения, а имя автора кладётся в username,
+   * чтобы свои можно было отобрать полем «только аккаунт».
+   */
+  async function loadTelegram(files) {
+    const data = files.has("result.json") ? await readJson(files, "result.json") : null;
+    if (!data || (!data.chats && !data.messages)) {
+      throw new Error("Не найден result.json — при экспорте в Telegram Desktop выберите формат «Машиночитаемый JSON».");
+    }
+    const info = data.personal_information || {};
+    const me = info.user_id ? `user${info.user_id}` : null;
+    const username = (info.username || "").replace(/^@+/, "") || [info.first_name, info.last_name].filter(Boolean).join(" ");
+    const chats = data.messages ? [data] : [...((data.chats || {}).list || []), ...((data.left_chats || {}).list || [])];
+    const tweets = [];
+    for (const chat of chats) {
+      const chatId = String(chat.id ?? "").replace(/^-100/, "").replace(/^-+/, "");
+      for (const m of chat.messages || []) {
+        const text = tgText(m.text);
+        if (m.type !== "message" || !text || (me && m.from_id !== me)) continue;
+        tweets.push({
+          id: `${chatId}_${m.id}`,
+          text,
+          createdAt: SlurSearchSM.parseTwitterDate((m.date || "").replace("T", " ")),
+          username: me ? "" : m.from || "",
+          kind: m.forwarded_from ? "repost" : m.reply_to_message_id ? "reply" : "message",
+          url: TG_LINKED.has(chat.type) ? `https://t.me/c/${chatId}/${m.id}` : null,
+          chat: chat.name || "",
+        });
+      }
+    }
+    const warnings = me ? [] : ["Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. " +
+      "Чтобы проверить только свои, впишите своё имя в Telegram в поле «только аккаунт»."];
+    return { username, tweets, warnings };
+  }
+
   // ---------------------------------------------------------------- список
 
   /**
@@ -329,9 +373,17 @@
       help: "Settings → My Data (accounts.snapchat.com) → выберите «Chat History» и формат <b>JSON</b>. " +
         "Проверяются ваши сообщения в чатах — снапы без текста Snapchat не сохраняет.",
     },
+    telegram: {
+      label: "Telegram",
+      accept: (path) => (/(?:^|\/)result\.json$/i.test(path) ? "result.json" : null),
+      load: loadTelegram,
+      help: "Telegram Desktop → Настройки → Продвинутые настройки → Экспорт данных из Telegram. Отметьте личные чаты и группы " +
+        "(в том числе публичные), формат — <b>«Машиночитаемый JSON»</b>, медиа не нужны. Выберите папку экспорта или файл " +
+        "<code>result.json</code>. Проверяются ваши сообщения; ссылки на сообщения есть только в супергруппах и каналах.",
+    },
   };
 
-  const Networks = { NETWORKS, fetchBluesky, fixMeta, parseRuDate };
+  const Networks = { NETWORKS, fetchBluesky, fixMeta, parseRuDate, loadTelegram };
   if (typeof module !== "undefined" && module.exports) module.exports = Networks;
   else root.Networks = Networks;
 })(typeof self !== "undefined" ? self : this);

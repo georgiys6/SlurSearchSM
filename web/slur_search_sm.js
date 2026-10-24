@@ -11,6 +11,9 @@
   // \w в Python юникодный, в JS — нет, поэтому буквы и цифры задаём явно.
   const W = "\\p{L}\\p{N}_";
   const WORD = new RegExp(`[${W}]+`, "gu");
+  // Японские буквы (кана, иероглифы): пробелов между словами нет, поэтому после них левая граница слова не нужна.
+  const JAPANESE = "\\u3005\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff\\uf900-\\ufaff";
+  const BOUNDARY = `(?:(?<![${W}])|(?<=[${JAPANESE}]))`;
 
   // ---------------------------------------------------------------- данные
 
@@ -150,10 +153,15 @@
 
   // ---------------------------------------------------------------- анализ
 
-  /** Нормализация без изменения длины строки — чтобы позиции совпадений подходили к исходному тексту. */
+  /** Нормализация без изменения длины строки — чтобы позиции совпадений подходили к исходному тексту.
+   * Полуширинные и полноширинные формы (ｼﾈ, ＫＹＳ) приводятся к обычным. */
   function normalize(text) {
     let lowered = "";
-    for (const c of text) {
+    for (let c of text) {
+      if (c >= "！" && c <= "￯") {
+        const n = c.normalize("NFKC");
+        if (n.length === 1) c = n;
+      }
       const l = c.toLowerCase();
       lowered += l.length === c.length ? l : c;
     }
@@ -187,14 +195,20 @@
       this.searchTerms = new Map();
       this.combos = [];
       this.levels = { high: 6, medium: 3 };
+      // Категории с одним ключом из разных словарей объединяются (default.json + ja.json); название и вес — из первого.
+      const merged = new Map();
       for (const data of datas) {
         for (const [key, cat] of Object.entries(data.categories)) {
-          const pattern = cat.patterns.map((p) => `(?:${pyRegex(p)})`).join("|");
-          this.categories.set(key, { title: cat.title, weight: cat.weight, regex: new RegExp(`(?<![${W}])(?:${pattern})`, "gu") });
-          if (cat.search_terms && cat.search_terms.length) this.searchTerms.set(key, cat.search_terms);
+          if (!merged.has(key)) merged.set(key, { title: cat.title, weight: cat.weight, patterns: [] });
+          merged.get(key).patterns.push(...cat.patterns);
+          if (cat.search_terms && cat.search_terms.length) this.searchTerms.set(key, [...(this.searchTerms.get(key) || []), ...cat.search_terms]);
         }
         this.combos.push(...(data.combos || []));
         Object.assign(this.levels, data.levels || {});
+      }
+      for (const [key, { title, weight, patterns }] of merged) {
+        const pattern = patterns.map((p) => `(?:${pyRegex(p)})`).join("|");
+        this.categories.set(key, { title, weight, regex: new RegExp(`${BOUNDARY}(?:${pattern})`, "gu") });
       }
     }
 
@@ -237,6 +251,8 @@
 
   // У записей из других соцсетей ссылка приходит готовой (url), а может и отсутствовать (url: null).
   const tweetUrl = (t) => (t.url !== undefined ? t.url : `https://x.com/${t.username || "i/web"}/status/${t.id}`);
+  // У сообщений Telegram рядом с типом — название чата.
+  const kindLabel = (t) => (t.chat ? `${KIND_RU[t.kind]} · ${t.chat}` : KIND_RU[t.kind]);
 
   /** Текст, разбитый на куски: [кусок, найденное_слово]. */
   function splitMarked(text, spans) {
@@ -295,7 +311,7 @@
       group.forEach((fd, i) => {
         const t = fd.tweet;
         if (i) doc.separator();
-        doc.line(`${t.createdAt ? fmtDate(t.createdAt) : "дата неизвестна"} · ${KIND_RU[t.kind]} · ${fd.score} б.`, true);
+        doc.line(`${t.createdAt ? fmtDate(t.createdAt) : "дата неизвестна"} · ${kindLabel(t)} · ${fd.score} б.`, true);
         doc.marked(splitMarked(t.text, fd.spans));
         doc.note([...[...fd.categories.keys()].map((k) => rules.title(k)), ...fd.combos.map((c) => `сочетание: ${c}`)].join("; "));
         if (tweetUrl(t)) doc.link(tweetUrl(t), tweetUrl(t));
@@ -315,7 +331,7 @@
       rows.push([
         t.id,
         t.createdAt ? fmtDate(t.createdAt) : "",
-        KIND_RU[t.kind],
+        kindLabel(t),
         fd.score,
         LEVEL_RU[fd.level],
         [...fd.categories.keys()].map((k) => rules.title(k)).join(", "),

@@ -2,6 +2,7 @@
 
 Источник данных:
   * архив аккаунта X/Twitter (папка или .zip, «Скачать архив данных»);
+  * экспорт Telegram Desktop в JSON (result.json) — свои сообщения в чатах;
   * либо CSV/JSON с полями id, text, created_at, username.
 
 Результат: report.txt и report.pdf (кликабельные ссылки), report.csv, ids.txt.
@@ -18,6 +19,7 @@ import logging
 import os
 import re
 import sys
+import unicodedata
 import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -25,12 +27,15 @@ from pathlib import Path
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_RULES = ROOT / "rules" / "default.json"
+DEFAULT_RULES = [ROOT / "rules" / "default.json", ROOT / "rules" / "ja.json"]
 
 # Латинские буквы, которыми маскируют кириллицу ("xoхлы", "pyсские").
 HOMOGLYPHS = str.maketrans("aceopxykmthb", "асеорхукмтнв")
 CYRILLIC = re.compile(r"[а-яё]")
 WORD = re.compile(r"\w+")
+# Японские буквы (кана, иероглифы): пробелов между словами нет, поэтому после них левая граница слова не нужна.
+JAPANESE = r"々぀-ヿ㐀-䶿一-鿿豈-﫿"
+BOUNDARY = rf"(?:(?<!\w)|(?<=[{JAPANESE}]))"
 
 
 # ---------------------------------------------------------------- данные
@@ -41,7 +46,9 @@ class Tweet:
     text: str
     created_at: datetime | None
     username: str
-    kind: str  # tweet | reply | retweet | like
+    kind: str  # tweet | reply | retweet | like | message | repost
+    url: str | None = ""  # "" — ссылка на X по id, None — ссылки нет (личные чаты Telegram)
+    chat: str = ""  # название чата Telegram
 
 
 @dataclass
@@ -139,11 +146,74 @@ def load_table(path: Path) -> list[Tweet]:
     ]
 
 
+# Чаты, у которых есть ссылки вида t.me/c/<id чата>/<id сообщения> (открываются у участников чата).
+TG_LINKED = {"private_supergroup", "public_supergroup", "private_channel", "public_channel"}
+
+
+def read_telegram(path: Path) -> dict | None:
+    """result.json экспорта Telegram Desktop: сам файл, папка экспорта или zip с ней. None — это не Telegram."""
+    if path.is_dir():
+        found = next(path.rglob("result.json"), None)
+        return json.loads(found.read_text(encoding="utf-8-sig")) if found else None
+    if path.suffix.lower() == ".zip":
+        with zipfile.ZipFile(path) as z:
+            name = next((n for n in z.namelist() if n.split("/")[-1] == "result.json"), None)
+            return json.loads(z.read(name).decode("utf-8-sig")) if name else None
+    if path.suffix.lower() != ".json":
+        return None
+    data = json.loads(path.read_text(encoding="utf-8-sig"))
+    return data if isinstance(data, dict) and ("chats" in data or "messages" in data) else None
+
+
+def tg_text(text) -> str:
+    """Текст сообщения: строка или список кусков (строки и {"type": "bold", "text": ...})."""
+    if isinstance(text, str):
+        return text
+    return "".join(p if isinstance(p, str) else p.get("text", "") for p in text or [])
+
+
+def load_telegram(data: dict) -> tuple[str, list[Tweet], bool]:
+    """Свои сообщения из экспорта Telegram (полного или одного чата, включая группы, из которых вы вышли).
+    В экспорте одного чата владелец неизвестен — тогда берутся все сообщения, а имя автора кладётся в username,
+    чтобы свои можно было отобрать через --account. Третье значение — известен ли владелец."""
+    info = data.get("personal_information") or {}
+    me = f"user{info['user_id']}" if info.get("user_id") else None
+    username = (info.get("username") or "").lstrip("@") or " ".join(filter(None, [info.get("first_name"), info.get("last_name")]))
+    if "messages" in data:
+        chats = [data]
+    else:
+        chats = (data.get("chats") or {}).get("list", []) + (data.get("left_chats") or {}).get("list", [])
+    tweets = []
+    for chat in chats:
+        chat_id = str(chat.get("id", "")).removeprefix("-100").lstrip("-")
+        for m in chat.get("messages", []):
+            text = tg_text(m.get("text"))
+            if m.get("type") != "message" or not text or (me and m.get("from_id") != me):
+                continue
+            tweets.append(Tweet(
+                f"{chat_id}_{m['id']}",
+                text,
+                parse_twitter_date((m.get("date") or "").replace("T", " ")),
+                "" if me else (m.get("from") or ""),
+                "repost" if m.get("forwarded_from") else "reply" if m.get("reply_to_message_id") else "message",
+                f"https://t.me/c/{chat_id}/{m['id']}" if chat.get("type") in TG_LINKED else None,
+                chat.get("name") or "",
+            ))
+    return username, tweets, bool(me)
+
+
 # ---------------------------------------------------------------- анализ
 
+def unwiden(c: str) -> str:
+    n = unicodedata.normalize("NFKC", c)
+    return n if len(n) == 1 else c
+
+
 def normalize(text: str) -> str:
-    """Нормализация без изменения длины строки — чтобы позиции совпадений подходили к исходному тексту."""
-    lowered = "".join(c.lower() if len(c.lower()) == 1 else c for c in text).replace("ё", "е")
+    """Нормализация без изменения длины строки — чтобы позиции совпадений подходили к исходному тексту.
+    Полуширинные и полноширинные формы (ｼﾈ, ＫＹＳ) приводятся к обычным."""
+    width = "".join(unwiden(c) if "！" <= c <= "￯" else c for c in text)
+    lowered = "".join(c.lower() if len(c.lower()) == 1 else c for c in width).replace("ё", "е")
     return WORD.sub(lambda m: m.group().translate(HOMOGLYPHS) if CYRILLIC.search(m.group()) else m.group(), lowered)
 
 
@@ -153,15 +223,19 @@ class Rules:
         self.search_terms: dict[str, list[str]] = {}
         self.combos = []
         self.levels = {"high": 6, "medium": 3}
+        # Категории с одним ключом из разных словарей объединяются (default.json + ja.json); название и вес — из первого.
+        merged: dict[str, tuple[str, int, list[str]]] = {}
         for path in paths:
             data = json.loads(path.read_text(encoding="utf-8"))
             for key, cat in data["categories"].items():
-                pattern = "|".join(f"(?:{p})" for p in cat["patterns"])
-                self.categories[key] = (cat["title"], cat["weight"], re.compile(rf"(?<!\w)(?:{pattern})"))
+                merged.setdefault(key, (cat["title"], cat["weight"], []))[2].extend(cat["patterns"])
                 if cat.get("search_terms"):
-                    self.search_terms[key] = cat["search_terms"]
+                    self.search_terms.setdefault(key, []).extend(cat["search_terms"])
             self.combos += data.get("combos", [])
             self.levels.update(data.get("levels", {}))
+        for key, (title, weight, patterns) in merged.items():
+            pattern = "|".join(f"(?:{p})" for p in patterns)
+            self.categories[key] = (title, weight, re.compile(rf"{BOUNDARY}(?:{pattern})"))
 
     def title(self, key: str) -> str:
         return self.categories[key][0]
@@ -190,7 +264,7 @@ class Rules:
 # ---------------------------------------------------------------- отчёты
 
 LEVEL_RU = {"high": "высокий", "medium": "средний", "low": "низкий"}
-KIND_RU = {"tweet": "твит", "reply": "ответ", "retweet": "ретвит", "like": "лайк"}
+KIND_RU = {"tweet": "твит", "reply": "ответ", "retweet": "ретвит", "like": "лайк", "message": "сообщение", "repost": "репост"}
 
 # Шрифты с кириллицей для PDF: (обычный, жирный).
 FONT_CANDIDATES = [
@@ -200,8 +274,12 @@ FONT_CANDIDATES = [
 ]
 
 
-def tweet_url(t: Tweet) -> str:
-    return f"https://x.com/{t.username or 'i/web'}/status/{t.id}"
+def tweet_url(t: Tweet) -> str | None:
+    return f"https://x.com/{t.username or 'i/web'}/status/{t.id}" if t.url == "" else t.url
+
+
+def kind_label(t: Tweet) -> str:
+    return f"{KIND_RU[t.kind]} · {t.chat}" if t.chat else KIND_RU[t.kind]
 
 
 def split_marked(text: str, spans: list[tuple[int, int]]) -> list[tuple[str, bool]]:
@@ -326,9 +404,9 @@ def save_doc(doc: Doc, out_dir: Path, name: str, formats: set[str]) -> list[Path
     return saved
 
 
-def report_doc(findings: list[Finding], rules: Rules, username: str, total: int) -> Doc:
+def report_doc(findings: list[Finding], rules: Rules, username: str, total: int, title: str | None = None) -> Doc:
     counts = {lvl: sum(f.level == lvl for f in findings) for lvl in LEVEL_RU}
-    doc = Doc(f"Отчёт по аккаунту @{username or '—'}")
+    doc = Doc(title or f"Отчёт по аккаунту @{username or '—'}")
     doc.note(f"Проверено записей: {total}. Найдено: {len(findings)} (высокий риск — {counts['high']}, "
              f"средний — {counts['medium']}, низкий — {counts['low']}). Найденные слова выделены"
              " (в TXT — квадратными скобками). Это поиск по словарю, а не оценка модерации: смотрите контекст.")
@@ -342,10 +420,11 @@ def report_doc(findings: list[Finding], rules: Rules, username: str, total: int)
             date = t.created_at.strftime("%Y-%m-%d %H:%M") if t.created_at else "дата неизвестна"
             if i:
                 doc.separator()
-            doc.line(f"{date} · {KIND_RU[t.kind]} · {fd.score} б.", bold=True)
+            doc.line(f"{date} · {kind_label(t)} · {fd.score} б.", bold=True)
             doc.marked(split_marked(t.text, fd.spans))
             doc.note("; ".join([rules.title(k) for k in fd.categories] + [f"сочетание: {c}" for c in fd.combos]))
-            doc.link(tweet_url(t), tweet_url(t))
+            if url := tweet_url(t):
+                doc.link(url, url)
     return doc
 
 
@@ -358,13 +437,13 @@ def write_csv(path: Path, findings: list[Finding], rules: Rules) -> None:
             w.writerow([
                 t.id,
                 t.created_at.strftime("%Y-%m-%d %H:%M") if t.created_at else "",
-                KIND_RU[t.kind],
+                kind_label(t),
                 fd.score,
                 LEVEL_RU[fd.level],
                 ", ".join(rules.title(k) for k in fd.categories),
                 ", ".join(w for words in fd.categories.values() for w in words),
                 t.text,
-                tweet_url(t),
+                tweet_url(t) or "",
             ])
 
 
@@ -392,10 +471,10 @@ def main() -> None:
     for stream in (sys.stdout, sys.stderr):
         stream.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description="Поиск рискованных твитов в аккаунте X/Twitter.")
-    ap.add_argument("source", type=Path, nargs="?", help="папка/zip архива X или CSV/JSON с твитами")
+    ap.add_argument("source", type=Path, nargs="?", help="папка/zip архива X, экспорт Telegram (result.json или его папка) или CSV/JSON с твитами")
     ap.add_argument("--account", help="проверять только этот аккаунт (для CSV/JSON с несколькими авторами)")
     ap.add_argument("--search-links", metavar="ИМЯ", help="без архива: сделать ссылки на поиск X по своему аккаунту")
-    ap.add_argument("--rules", type=Path, action="append", help="файл словаря, можно несколько (по умолчанию rules/default.json)")
+    ap.add_argument("--rules", type=Path, action="append", help="файл словаря, можно несколько (по умолчанию rules/default.json и rules/ja.json)")
     ap.add_argument("--only-replies", action="store_true", help="проверять только ответы — по ним чаще всего ищут жалобщики")
     ap.add_argument("--out", type=Path, default=Path("report"), help="папка для отчёта")
     ap.add_argument("--format", default="txt,pdf", help="форматы отчёта через запятую: txt, pdf (по умолчанию оба)")
@@ -406,7 +485,7 @@ def main() -> None:
     ap.add_argument("--no-retweets", action="store_true", help="не проверять ретвиты")
     ap.add_argument("--ignore", type=Path, help="файл с id твитов, уже проверенных вручную (по одному на строку)")
     args = ap.parse_args()
-    rules = Rules(args.rules or [DEFAULT_RULES])
+    rules = Rules(args.rules or DEFAULT_RULES)
     formats = {f.strip().lower() for f in args.format.split(",")}
     if not formats <= {"txt", "pdf"}:
         ap.error("--format: допустимы txt и pdf")
@@ -425,7 +504,15 @@ def main() -> None:
     if not args.source.exists():
         sys.exit(f"Не найдено: {args.source}")
 
-    if args.source.is_dir() or args.source.suffix.lower() == ".zip":
+    title = None
+    telegram = read_telegram(args.source)
+    if telegram is not None:
+        username, tweets, owner_known = load_telegram(telegram)
+        title = f"Отчёт: Telegram, {username}" if username else "Отчёт: Telegram"
+        if not owner_known and not args.account:
+            print("Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. "
+                  "Чтобы проверить только свои, укажите --account \"ваше имя в Telegram\".", file=sys.stderr)
+    elif args.source.is_dir() or args.source.suffix.lower() == ".zip":
         username, tweets = load_archive(args.source, args.include_likes)
     else:
         tweets = load_table(args.source)
@@ -443,7 +530,7 @@ def main() -> None:
     ignored = set(args.ignore.read_text(encoding="utf-8").split()) if args.ignore else set()
 
     def keep(t: Tweet) -> bool:
-        if t.id in ignored or (args.no_retweets and t.kind == "retweet"):
+        if t.id in ignored or (args.no_retweets and t.kind in ("retweet", "repost")):
             return False
         if args.only_replies and t.kind != "reply":
             return False
@@ -457,7 +544,7 @@ def main() -> None:
     findings = [f for f in map(rules.check, tweets) if f.score >= args.min_score]
     findings.sort(key=lambda f: (-f.score, -(f.tweet.created_at.timestamp() if f.tweet.created_at else 0)))
 
-    saved = save_doc(report_doc(findings, rules, username, len(tweets)), args.out, "report", formats)
+    saved = save_doc(report_doc(findings, rules, username, len(tweets), title), args.out, "report", formats)
     write_csv(args.out / "report.csv", findings, rules)
     (args.out / "ids.txt").write_text("\n".join(f.tweet.id for f in findings), encoding="utf-8")
 

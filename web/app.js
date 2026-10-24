@@ -5,7 +5,7 @@
   "use strict";
 
   const $ = (id) => document.getElementById(id);
-  const DEFAULT_RULES = "rules/default.json";
+  const DEFAULT_RULES = ["rules/default.json", "rules/ja.json"];
   let defaultRules = null;
   let source = null; // { kind: "zip" | "dir" | "single" | "table", name, file?, files? }
   let network = "x";
@@ -24,24 +24,26 @@
 
   // ---------------------------------------------------------------- словари
 
-  // Основной словарь подключается всегда; если он не загрузился (страница открыта как file://),
+  // Основные словари подключаются всегда; если они не загрузились (страница открыта как file://),
   // можно работать только со своими словарями.
   async function loadRules() {
     const datas = [];
     const custom = $("rule-custom").files;
     if (!defaultRules) {
       try {
-        const resp = await fetch(DEFAULT_RULES);
-        if (!resp.ok) throw new Error(String(resp.status));
-        defaultRules = await resp.json();
+        defaultRules = await Promise.all(DEFAULT_RULES.map(async (url) => {
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error(String(resp.status));
+          return resp.json();
+        }));
       } catch (e) {
         if (!custom.length) {
-          throw new Error(`Не удалось загрузить ${DEFAULT_RULES}. Если страница открыта как файл (file://), запустите её через сервер ` +
+          throw new Error(`Не удалось загрузить ${DEFAULT_RULES.join(", ")}. Если страница открыта как файл (file://), запустите её через сервер ` +
             "(python -m http.server) или выберите словарь вручную в поле «Свой словарь».");
         }
       }
     }
-    if (defaultRules) datas.push(defaultRules);
+    if (defaultRules) datas.push(...defaultRules);
     for (const f of custom) {
       try {
         datas.push(JSON.parse(await f.text()));
@@ -274,7 +276,7 @@
         ignore: new Set(ignoreFile ? (await ignoreFile.text()).split(/\s+/).filter(Boolean) : []),
       };
 
-      const { username, tweets } = await load();
+      const { username, tweets, warnings = [] } = await load();
       status(`Проверяю ${tweets.length} записей…`);
       await tick();
       if (network !== "x") opts.title = `Отчёт: ${net().label}${username ? `, ${username}` : ""}`;
@@ -286,7 +288,7 @@
         ["ids.txt", r.ids, "text/plain;charset=utf-8"],
       ], "report");
       const who = r.username ? (network === "x" || network === "bluesky" ? `@${r.username}` : r.username) : "—";
-      status([...r.warnings, `${net().label}, аккаунт: ${who}; проверено: ${r.total}; найдено: ${r.findings.length} ` +
+      status([...warnings, ...r.warnings, `${net().label}, аккаунт: ${who}; проверено: ${r.total}; найдено: ${r.findings.length} ` +
         `(высокий ${r.byLevel.high}, средний ${r.byLevel.medium}, низкий ${r.byLevel.low})`].join(" "));
     } catch (err) {
       status(err.message, true);
