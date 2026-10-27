@@ -90,6 +90,27 @@
       "tg.noResult": "Не найден result.json — при экспорте в Telegram Desktop выберите формат «Машиночитаемый JSON».",
       "tg.noOwner": "Внимание: в экспорте одного чата нет данных о владельце — проверяются сообщения всех участников. " +
         "Чтобы проверить только свои, впишите своё имя в Telegram в поле «только аккаунт».",
+      "guide.open": "Инструкция",
+      "guide.toast": "Впервые проверяете аккаунт? Показать <b>простую пошаговую инструкцию</b>?",
+      "guide.yes": "Да, покажите",
+      "guide.no": "Не нужно",
+      "guide.title": "Инструкция: как проверить аккаунт",
+      "guide.s1": "<b>Выберите соцсеть</b> в списке «Соцсеть» вверху страницы — ту, где ваш аккаунт.",
+      "guide.get.x": "<b>Быстрый способ — без архива.</b> Впишите свой ник в блоке «Ссылки на поиск X» и нажмите «Сделать ссылки». " +
+        "Открывайте ссылки по очереди в браузере, где вы вошли в X: если страница пустая — всё хорошо, если что-то нашлось — посмотрите и удалите. " +
+        "<br><b>Полный способ — архив</b> (находит больше): ",
+      "guide.get.bluesky": "<b>Впишите свой ник</b> (например <code>name.bsky.social</code>) в блоке «Посты по нику» и нажмите «Загрузить и проверить». " +
+        "Архив не нужен, пароль вводить не нужно — дальше переходите сразу к шагу 5.",
+      "guide.get.archive": "<b>Закажите архив своих данных</b> в самой соцсети. Это бесплатно, архив готовят от нескольких часов до пары дней, " +
+        "потом приходит письмо или уведомление со ссылкой. Где его заказать: ",
+      "guide.s3": "<b>Скачайте архив</b> (обычно файл <code>.zip</code>) и <b>не распаковывайте</b> его — подойдёт как есть. " +
+        "На этой странице нажмите «Выбрать файл» и выберите скачанный файл (или просто перетащите его в рамку). " +
+        "Если вам дали папку, а не файл (как в Telegram), нажмите «Выбрать папку».",
+      "guide.s4": "<b>Нажмите «Проверить».</b> Параметры можно не трогать — они уже подходят. Большой архив может проверяться минуту-другую, страницу не закрывайте.",
+      "guide.s5": "<b>Посмотрите результат.</b> Сначала идут записи с <b>высоким</b> риском — с них и начните. Найденные слова выделены красным. " +
+        "Это лишь поиск по словам: решите сами, опасна ли запись, и удалите лишнее в соцсети (по ссылке, если она есть). Отчёт можно скачать кнопками над ним.",
+      "guide.safe": "🔒 Ваш архив никуда не загружается: всё проверяется прямо в вашем браузере. Пароль от соцсети здесь вводить не нужно — никогда не давайте его посторонним сайтам.",
+      "guide.ok": "Понятно",
     },
 
     en: {
@@ -176,6 +197,27 @@
       "tg.noResult": "result.json not found — choose “Machine-readable JSON” when exporting from Telegram Desktop.",
       "tg.noOwner": "Warning: a single-chat export has no owner info, so messages from all participants are checked. " +
         "To check only yours, enter your Telegram name in the “only account” field.",
+      "guide.open": "Guide",
+      "guide.toast": "First time checking your account? Show a <b>simple step-by-step guide</b>?",
+      "guide.yes": "Yes, show me",
+      "guide.no": "No, thanks",
+      "guide.title": "Guide: how to check your account",
+      "guide.s1": "<b>Choose your network</b> in the “Network” list at the top of the page — the one where your account is.",
+      "guide.get.x": "<b>Quick way — no archive.</b> Enter your handle in the “X search links” block and press “Make links”. " +
+        "Open the links one by one in a browser where you are logged in to X: an empty page is good; if something shows up, look at it and delete it. " +
+        "<br><b>Complete way — archive</b> (finds more): ",
+      "guide.get.bluesky": "<b>Enter your handle</b> (for example <code>name.bsky.social</code>) in the “Posts by handle” block and press “Load and check”. " +
+        "No archive and no password needed — go straight to step 5.",
+      "guide.get.archive": "<b>Request an archive of your data</b> in the network itself. It is free; preparing it takes from a few hours to a couple of days, " +
+        "then you get an email or notification with a link. Where to request it: ",
+      "guide.s3": "<b>Download the archive</b> (usually a <code>.zip</code> file) and <b>don't unzip it</b> — it works as is. " +
+        "On this page press “Choose file” and pick the downloaded file (or just drag it into the box). " +
+        "If you got a folder rather than a file (as with Telegram), press “Choose folder”.",
+      "guide.s4": "<b>Press “Check”.</b> You can leave the options as they are — the defaults are fine. A large archive may take a minute or two; keep the page open.",
+      "guide.s5": "<b>Look at the result.</b> Posts with <b>high</b> risk come first — start with those. Matched words are highlighted in red. " +
+        "This is only a word search: decide for yourself whether a post is a problem and delete what you don't want on the network (via the link, if there is one). You can download the report with the buttons above it.",
+      "guide.safe": "🔒 Your archive is never uploaded: everything is checked right in your browser. You never need to enter your password here — never give it to third-party sites.",
+      "guide.ok": "Got it",
     },
 
     ja: {
@@ -262,6 +304,27 @@
       "tg.noResult": "result.json が見つかりません。Telegram Desktopのエクスポートで「JSON（機械可読）」を選んでください。",
       "tg.noOwner": "注意: 1つのチャットのエクスポートには所有者の情報がないため、全参加者のメッセージをチェックします。" +
         "自分のメッセージだけにするには「アカウントを限定」欄にTelegramの表示名を入力してください。",
+      "guide.open": "使い方",
+      "guide.toast": "初めてチェックしますか？<b>かんたんな手順ガイド</b>を表示しますか？",
+      "guide.yes": "表示する",
+      "guide.no": "不要",
+      "guide.title": "使い方: アカウントのチェック手順",
+      "guide.s1": "ページ上部の「SNS」一覧で、自分のアカウントがある<b>SNSを選びます</b>。",
+      "guide.get.x": "<b>簡単な方法（アーカイブ不要）:</b>「Xの検索リンク」欄にユーザー名を入力し、「リンクを作成」を押します。" +
+        "Xにログインしているブラウザでリンクを1つずつ開き、何も表示されなければ問題なし。表示された投稿は確認して削除してください。" +
+        "<br><b>完全な方法（アーカイブ、より多く見つかります）:</b> ",
+      "guide.get.bluesky": "「ハンドル名で投稿を取得」欄に<b>ハンドル名</b>（例: <code>name.bsky.social</code>）を入力し、「読み込んでチェック」を押します。" +
+        "アーカイブもパスワードも不要です。そのまま手順5へ進んでください。",
+      "guide.get.archive": "SNS本体で<b>自分のデータのアーカイブを請求します</b>。無料で、準備には数時間〜数日かかり、" +
+        "その後リンク付きのメールや通知が届きます。請求の場所: ",
+      "guide.s3": "<b>アーカイブをダウンロード</b>し（通常は <code>.zip</code> ファイル）、<b>展開せず</b>そのまま使います。" +
+        "このページで「ファイルを選択」を押してダウンロードしたファイルを選びます（枠にドラッグしても可）。" +
+        "ファイルではなくフォルダの場合（Telegramなど）は「フォルダを選択」を押します。",
+      "guide.s4": "<b>「チェック」を押します。</b>設定はそのままで大丈夫です。大きなアーカイブは1〜2分かかることがあるので、ページを閉じないでください。",
+      "guide.s5": "<b>結果を確認します。</b>リスク<b>高</b>の投稿が先に表示されるので、そこから見てください。検出語は赤で強調されます。" +
+        "これは単語検索にすぎません。問題かどうかは自分で判断し、不要な投稿はSNS上で削除してください（リンクがあればそこから）。レポートは上のボタンでダウンロードできます。",
+      "guide.safe": "🔒 アーカイブはどこにもアップロードされず、すべてブラウザ内でチェックされます。ここでパスワードを入力する必要はありません。第三者のサイトには決して教えないでください。",
+      "guide.ok": "わかった",
     },
   };
 

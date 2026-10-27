@@ -110,6 +110,33 @@
   </footer>
 </main>
 
+<button type="button" id="guide-fab" class="guide-fab no-print" aria-label="Инструкция" title="Инструкция" hidden>?</button>
+
+<div id="guide-toast" class="guide-toast no-print" role="dialog" aria-labelledby="guide-toast-text" hidden>
+  <button type="button" class="guide-x" id="guide-toast-close" aria-label="×">×</button>
+  <p id="guide-toast-text" data-i18n-html="guide.toast">Впервые проверяете аккаунт? Показать простую пошаговую инструкцию?</p>
+  <div class="row">
+    <button type="button" id="guide-yes" data-i18n="guide.yes">Да, покажите</button>
+    <button type="button" id="guide-no" class="secondary" data-i18n="guide.no">Не нужно</button>
+  </div>
+</div>
+
+<dialog id="guide" class="guide no-print" aria-labelledby="guide-title">
+  <div class="guide-head">
+    <h2 id="guide-title" data-i18n="guide.title">Инструкция: как проверить аккаунт</h2>
+    <button type="button" class="guide-x" id="guide-close" aria-label="×">×</button>
+  </div>
+  <ol class="guide-steps">
+    <li data-i18n-html="guide.s1"></li>
+    <li><span id="guide-get"></span></li>
+    <li id="guide-file" data-i18n-html="guide.s3"></li>
+    <li data-i18n-html="guide.s4"></li>
+    <li data-i18n-html="guide.s5"></li>
+  </ol>
+  <p class="muted" data-i18n-html="guide.safe"></p>
+  <button type="button" id="guide-ok" data-i18n="guide.ok">Понятно</button>
+</dialog>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="web/i18n.js"></script>
 <script src="web/slur_search_sm.js"></script>

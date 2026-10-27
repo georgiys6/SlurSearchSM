@@ -144,6 +144,53 @@ button:disabled { opacity: .45; cursor: default; }
 .doc h2.medium { color: var(--medium); }
 .doc h2.low { color: var(--low); }
 
+/* Инструкция: предложение в углу, кнопка «?» и окно */
+.guide-toast, .guide-fab { position: fixed; right: 16px; bottom: 16px; z-index: 10; }
+.guide-toast {
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+  animation: guide-in .25s ease-out;
+}
+.guide-toast p { margin: 0 24px 10px 0; font-size: 14px; }
+@keyframes guide-in { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) { .guide-toast { animation: none; } }
+.guide-fab {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
+}
+.guide-x {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px 8px;
+}
+.guide-toast .guide-x { position: absolute; top: 6px; right: 6px; }
+.guide {
+  width: 640px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.guide::backdrop { background: rgba(0, 0, 0, .45); }
+.guide-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.guide-steps { padding-left: 22px; margin: 8px 0 12px; }
+.guide-steps li { margin-bottom: 10px; }
+
 @media print {
   :root { --bg: #fff; --card: #fff; --text: #141414; --muted: #6e6e6e; --hit: #c81e1e; --hit-bg: transparent; --accent: #145ac8; }
   body { font-size: 11pt; }

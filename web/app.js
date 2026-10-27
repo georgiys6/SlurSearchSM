@@ -140,9 +140,48 @@
     $("archive-title").textContent = t(net().api ? "archive.titleApi" : "archive.title");
     if (source) $("drop-label").textContent = t("source.selected", { name: source.name });
     else $("drop-label").innerHTML = t(net().api ? "drop.api" : "drop.archive");
+    showGuideTexts();
   }
 
   $("network").addEventListener("change", (e) => setNetwork(e.target.value));
+
+  // ---------------------------------------------------------------- инструкция
+
+  // Новичку один раз предлагаем инструкцию всплывашкой в углу; потом она открывается кнопкой «?».
+  const GUIDE_KEY = "slursearchsm-guide";
+
+  function showGuideTexts() {
+    const get = network === "x" || network === "bluesky" ? `guide.get.${network}` : "guide.get.archive";
+    $("guide-get").innerHTML = t(get) + (network === "bluesky" ? "" : t(`help.${network}`));
+    $("guide-file").hidden = network === "bluesky";
+    $("guide-fab").title = t("guide.open");
+    $("guide-fab").setAttribute("aria-label", t("guide.open"));
+  }
+
+  function hideGuideToast() {
+    $("guide-toast").hidden = true;
+    $("guide-fab").hidden = false;
+    try {
+      localStorage.setItem(GUIDE_KEY, "1");
+    } catch (e) {
+      // предложим ещё раз в следующий заход — не страшно
+    }
+  }
+
+  function openGuide() {
+    hideGuideToast();
+    $("guide").showModal();
+  }
+
+  $("guide-yes").addEventListener("click", openGuide);
+  $("guide-fab").addEventListener("click", openGuide);
+  $("guide-no").addEventListener("click", hideGuideToast);
+  $("guide-toast-close").addEventListener("click", hideGuideToast);
+  for (const id of ["guide-close", "guide-ok"]) $(id).addEventListener("click", () => $("guide").close());
+  // Клик по затемнению вокруг окна тоже закрывает его.
+  $("guide").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.close();
+  });
 
   // ---------------------------------------------------------------- язык
 
@@ -349,4 +388,13 @@
   }
   applyLang();
   setNetwork(saved || "x");
+
+  let guideSeen = false;
+  try {
+    guideSeen = !!localStorage.getItem(GUIDE_KEY);
+  } catch (e) {
+    // хранилище недоступно — предлагаем инструкцию
+  }
+  $("guide-toast").hidden = guideSeen;
+  $("guide-fab").hidden = !guideSeen;
 })();
